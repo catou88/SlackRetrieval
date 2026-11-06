@@ -1,0 +1,6 @@
+node_modules/
+# Your Slack messages, contacts, embeddings and briefs — private, never commit.
+data/
+.env
+# Backup zips contain your private messages
+slack-backup-*.zip

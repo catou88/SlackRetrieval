@@ -1,0 +1,26 @@
+# Paste into https://api.slack.com/apps -> Create New App -> From a manifest,
+# choose the Cal Hacks 2026 workspace.
+display_information:
+  name: My Slack Memory
+  description: Personal read-only export of my messages for search.
+oauth_config:
+  # Placeholder only; the token is copied from the app page, so nothing is ever sent here.
+  redirect_urls:
+    - https://localhost
+  scopes:
+    user:
+      - channels:history
+      - channels:read
+      - groups:history
+      - groups:read
+      - im:history
+      - im:read
+      - mpim:history
+      - mpim:read
+      - users:read
+      - users:read.email
+      - users.profile:read
+      - files:read
+settings:
+  org_deploy_enabled: false
+  socket_mode_enabled: false
