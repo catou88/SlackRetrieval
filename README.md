@@ -106,6 +106,37 @@ npm run ask -- "who works on payments?" --mentors
 npm run search -- "android firebase login"    # raw vector search, no Claude call
 ```
 
+## Project layout
+
+```
+backend/
+  src/
+    main.js          CLI entry (every npm script); cli/commands.js has one function per command
+    config.js        the only module that reads environment variables
+    http/            server.js (composition root), router.js (request pipeline)
+      routes/        route tables per resource: contacts, archive, assistant, system
+      middleware/    requestGuard, jsonBody, queryValidation, responseCache, staticFiles, errorHandler, respond
+    services/        use cases: ingest, people, categorize, search, rag, contacts, archive, indexing, backup …
+    data/            storage: SQLite (db, queries), JSON snapshot, vector index, pgvector
+    clients/         external systems: Slack, Claude, local embedding model
+    lib/             pure shared code: cache, errors, text patterns, collection definitions
+  test/              node --test suites (npm test)
+  scripts/eval/      classifier evaluation on held-out labels
+frontend/            served as-is, no build step
+  index.html
+  styles/            base, components, one stylesheet per page
+  src/
+    main.js, router.js
+    pages/           one module per route
+    components/      reusable UI pieces
+    contexts/        app-wide state: data store, navigation, preferences, theme
+    services/        HTTP client, downloads, clipboard
+    utils/           pure helpers: formatting, markdown, Slack text, highlights
+data/                your private archive (git-ignored)
+```
+
+Imports only point downward: `http → services → data / clients → lib`.
+
 ## Where LinkedIn and mentor info comes from
 
 - **LinkedIn:** `linkedin.com/in/...` links in the person's own messages (mostly
@@ -115,7 +146,7 @@ npm run search -- "android firebase login"    # raw vector search, no Claude cal
   Google"), self-introductions ("I'm a mentor from…"), and answers in channels
   with "mentor" in the name (marked `mentor?`).
 - **Manual override:** put names or Slack IDs, one per line, in `data/mentors.txt`, then
-  run `node src/cli.js people:build`.
+  run `node backend/src/main.js people:build`.
 
 ## Troubleshooting
 

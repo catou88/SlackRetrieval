@@ -1,0 +1,5 @@
+/* ---------- Teammates ---------- */
+.tm-sec + .tm-sec { margin-top: 48px; }
+.badge__reason .quote { font-style: italic; }
+/* The section heading already says why they're here; the team chip would repeat it on every card. */
+.tm-sec .badge__chips .tint-teammate { display: none; }

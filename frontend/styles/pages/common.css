@@ -1,0 +1,11 @@
+/* Layout pieces shared by several pages: page headers, toolbars, show-more rows, cards. */
+.page-head { margin-bottom: 32px; }
+.page-head .eyebrow { margin-bottom: 10px; }
+.sec-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.sec-head .lane__more { margin-left: auto; }
+.toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.toolbar .field { flex: 1 1 280px; max-width: 420px; }
+.toolbar__end { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.showmore { display: flex; justify-content: center; padding: 20px 0 4px; }
+.card { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow-card); }
+.disclaimer { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--faint); }

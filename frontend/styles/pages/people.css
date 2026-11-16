@@ -1,0 +1,43 @@
+/* ---------- People ---------- */
+.fchip__dot--likely { outline: 1.5px dashed var(--mentor); outline-offset: -1.5px; }
+.fchip[aria-pressed="true"] .fchip__dot { box-shadow: 0 0 0 1.5px var(--bg); }
+.people-count { margin: 18px 0 12px; }
+.menu { position: relative; }
+.menu > summary { list-style: none; }
+.menu > summary::-webkit-details-marker { display: none; }
+.menu__pop { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; width: 220px; padding: 6px; background: var(--raised); border-radius: var(--r-md); box-shadow: var(--shadow-pop); animation: rise var(--t-med) var(--ease); }
+.menu__head { padding: 6px 8px 8px; font: 12px var(--font-mono); color: var(--faint); border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.menu__item { display: flex; width: 100%; align-items: center; gap: 8px; height: 34px; padding: 0 8px; border: 0; border-radius: var(--r-sm); background: none; text-align: left; font-size: 13px; }
+.menu__item:hover, .menu__item:focus-visible { background: color-mix(in oklab, var(--accent) var(--tint), var(--raised)); }
+.plist { list-style: none; margin: 0; padding: 0 4px; }
+.prow { position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) minmax(0, 220px) 44px 72px; gap: 14px; align-items: center; min-height: 60px; padding: 8px 14px; border-radius: var(--r-md); transition: background var(--t-fast); }
+.prow + .prow { box-shadow: 0 -1px 0 var(--border); }
+.prow:hover { background: color-mix(in oklab, var(--raised) 70%, var(--bg)); }
+.prow:focus-within { outline: 2px solid var(--accent); outline-offset: -2px; }
+.prow__id { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.prow__name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.prow__name a { font-weight: 600; color: var(--text); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prow__name a::after { content: ""; position: absolute; inset: 0; }
+.prow__name a:focus-visible { outline: none; }
+.prow__line { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prow__li { position: relative; z-index: 1; display: flex; align-items: center; gap: 2px; min-width: 0; }
+.prow__li a { font-size: 12px; color: var(--muted); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prow__li a:hover { color: var(--accent); text-decoration: underline; }
+.prow__status { position: relative; z-index: 1; display: flex; gap: 4px; justify-content: center; }
+.ok-ico { color: var(--ok); } .due-ico { color: var(--due); }
+.prow__counts { font-size: 12px; color: var(--faint); text-align: right; line-height: 1.35; }
+@media (max-width: 1023px) { .prow { grid-template-columns: 40px minmax(0, 1fr) 160px 36px; } .prow__counts { display: none; } }
+@media (max-width: 767px) {
+  .toolbar .field { flex-basis: 100%; max-width: none; }
+  .toolbar__end { margin-left: 0; width: 100%; }
+  .toolbar__end .menu { margin-left: auto; }
+  .fchips { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 6px; scrollbar-width: none; }
+  .fchip { height: 36px; }
+  .prow { grid-template-columns: 40px minmax(0, 1fr) auto; padding: 8px 6px; gap: 12px; }
+  .prow__li { display: none; }
+  .prow__name .chip:nth-of-type(n+2) { display: none; }
+  .menu__pop { right: 0; }
+}
+
+/* Keep the "offered help" count visible when extra role chips are hidden on phones. */
+@media (max-width: 767px) { .prow__name .chip.chip--offer { display: inline-flex; } }

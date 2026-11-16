@@ -1,0 +1,192 @@
+// Owns the CLI commands: one named function per `npm run <command>`. Each
+// receives { text, flags } (positional words joined, parsed --flags) and
+// orchestrates services; printing is done here, not in the services.
+import fs from "node:fs";
+import { readJSON, dataPath, FILES } from "../data/jsonStore.js";
+import { ingestSlackWorkspace } from "../services/ingest.js";
+import { buildContactBook } from "../services/people.js";
+import { categorize } from "../services/categorize.js";
+import { rebuildSearchIndex, refreshDatabase } from "../services/indexing.js";
+import { semanticSearch } from "../services/search.js";
+import { answerQuestion, writeReconnectBrief } from "../services/rag.js";
+import { backupDataFolder } from "../services/backup.js";
+import { exportContactsCsv } from "../services/contactExport.js";
+
+const DEFAULT_SEARCH_RESULTS = 10;
+const DEFAULT_PG_SEARCH_RESULTS = 15;
+const PREVIEW_CHARS = 200;
+const SOURCE_PREVIEW_CHARS = 120;
+const INTRO_PREVIEW_CHARS = 400;
+
+/** Command name → handler. Unknown names print the usage text. */
+export const COMMANDS = {
+  ingest: ingestCommand,
+  "people:build": buildPeopleCommand,
+  index: indexCommand,
+  db: databaseCommand,
+  sync: syncCommand,
+  categorize: categorizeCommand,
+  pg: pgvectorLoadCommand,
+  collection: pgvectorCollectionCommand,
+  "pg:search": pgvectorSearchCommand,
+  serve: serveCommand,
+  backup: backupCommand,
+  search: searchCommand,
+  ask: askCommand,
+  brief: briefCommand,
+  people: listPeopleCommand,
+  export: exportCommand,
+};
+
+export const USAGE = `Usage (npm run <command> -- …):
+  sync [--all] [--full] [--no-files]   ingest Slack + build contacts + index + collections + database
+  ask "who offered to review my resume?" [--person "Jane"] [--mentors] [--sources] [--fresh]
+  search "react native auth" [--k 10]
+  people [--mentors] [--linkedin]
+  brief "Jane Doe" [--goal "ask about internships"] [--fresh]
+  export                               contacts.csv for spreadsheets
+  serve [--no-cache]                   local website at http://localhost:3000 (or CACHE=0)
+  backup [--to D:\\]                    zip everything in data/
+  ingest | index | db | categorize | pg | collection [name] | pg:search "query" [--in collection]`;
+
+// ---------------------------------------------------------------- data pipeline
+async function ingestCommand({ flags }) {
+  await ingestSlackWorkspace(ingestOptions(flags));
+}
+
+function buildPeopleCommand() {
+  buildContactBook();
+  refreshDatabase();
+}
+
+async function indexCommand() {
+  await rebuildSearchIndex();
+}
+
+function databaseCommand() {
+  refreshDatabase();
+}
+
+async function syncCommand({ flags }) {
+  await ingestSlackWorkspace(ingestOptions(flags));
+  buildContactBook();
+  try {
+    await rebuildSearchIndex();
+    await categorize();
+  } catch (err) {
+    // Messages are already safely saved; search + collections can be built later.
+    console.error(`Index/collections failed (${err.message}). Your data is saved; retry with: npm run categorize`);
+  }
+  refreshDatabase();
+}
+
+// Re-sort networking collections (after tuning) and refresh the website database.
+async function categorizeCommand() {
+  buildContactBook();
+  await rebuildSearchIndex();
+  await categorize();
+  refreshDatabase();
+}
+
+// ---------------------------------------------------------------- pgvector (Docker)
+async function pgvectorLoadCommand() {
+  const { startPgvectorContainer, loadArchiveIntoPgvector, dumpPgvectorDatabase } = await import("../data/pgvector.js");
+  await categorize();
+  await startPgvectorContainer();
+  await loadArchiveIntoPgvector();
+  dumpPgvectorDatabase();
+}
+
+// linkedin-directory | mentors | offers | linkedin | mentor_intro | offer
+async function pgvectorCollectionCommand({ text }) {
+  const { listPgvectorCollection } = await import("../data/pgvector.js");
+  const rows = await listPgvectorCollection(text || "linkedin-directory");
+  for (const row of rows) {
+    const who = [row.name || row.user_name, row.title].filter(Boolean).join(" — ");
+    const link = Array.isArray(row.linkedin) ? row.linkedin.join(" ") : row.linkedin || "";
+    console.log(`\n${who}  ${link}`.trimEnd());
+    const intro = row.introduction || row.text;
+    if (intro) console.log("  " + oneLine(intro).slice(0, INTRO_PREVIEW_CHARS));
+  }
+  console.log(`\n${rows.length} rows`);
+}
+
+async function pgvectorSearchCommand({ text, flags }) {
+  const { searchPgvector } = await import("../data/pgvector.js");
+  const rows = await searchPgvector(text, { collection: flags.in, k: Number(flags.k) || DEFAULT_PG_SEARCH_RESULTS });
+  for (const row of rows) {
+    console.log(`${row.score.toFixed(3)} [${row.collections.join(",")}] ${row.channel} — ${row.user_name}: ${oneLine(row.text).slice(0, PREVIEW_CHARS)}`);
+  }
+}
+
+// ---------------------------------------------------------------- website, backup, export
+async function serveCommand() {
+  const { startServer } = await import("../http/server.js");
+  await startServer();
+}
+
+function backupCommand({ flags }) {
+  backupDataFolder({ destinationDir: flags.to || "." });
+}
+
+function exportCommand() {
+  const { file, count } = exportContactsCsv();
+  console.log(`Wrote ${count} contacts to ${file}`);
+}
+
+// ---------------------------------------------------------------- questions
+async function searchCommand({ text, flags }) {
+  const messagesById = new Map(readJSON(FILES.messages, []).map((message) => [message.id, message]));
+  const hits = await semanticSearch(text, { k: Number(flags.k) || DEFAULT_SEARCH_RESULTS });
+  for (const hit of hits) {
+    const message = messagesById.get(hit.id);
+    console.log(`${hit.score.toFixed(3)}  ${message.date.slice(0, 10)} ${message.channel} — ${message.user_name}: ${oneLine(message.text.slice(0, PREVIEW_CHARS))}`);
+  }
+}
+
+async function askCommand({ text, flags }) {
+  if (!text) throw new Error('Usage: ask "your question"');
+  const { answer, hits } = await answerQuestion(text, { person: flags.person, mentorsOnly: !!flags.mentors, fresh: !!flags.fresh });
+  console.log(answer);
+  if (!flags.sources) return;
+  console.log("\n--- sources ---");
+  for (const hit of hits) {
+    console.log(`${hit.score.toFixed(3)} ${hit.message.channel} ${hit.message.user_name}: ${hit.message.text.slice(0, SOURCE_PREVIEW_CHARS)}`);
+  }
+}
+
+async function briefCommand({ text, flags }) {
+  if (!text) throw new Error('Usage: brief "Person Name" [--goal "..."]');
+  const { person, answer, directCount } = await writeReconnectBrief(text, { goal: flags.goal || "", fresh: !!flags.fresh });
+  console.log(`# ${person.name}  (${directCount} direct messages found)\n`);
+  console.log(answer);
+  const briefFile = dataPath(`briefs/${person.name.replace(/[^\w-]+/g, "_")}.md`);
+  fs.mkdirSync(dataPath("briefs"), { recursive: true });
+  fs.writeFileSync(briefFile, `# ${person.name}\n\n${answer}\n`);
+  console.log(`\n(saved to ${briefFile})`);
+}
+
+function listPeopleCommand({ flags }) {
+  const people = Object.values(readJSON(FILES.people, {}))
+    .filter((person) => !person.is_me)
+    .filter((person) => !flags.mentors || person.is_mentor)
+    .filter((person) => !flags.linkedin || person.linkedin.length)
+    .sort((a, b) => b.dm_count - a.dm_count || b.message_count - a.message_count);
+  for (const person of people) console.log(formatPersonRow(person));
+  console.log(`\n${people.length} people`);
+}
+
+// ---------------------------------------------------------------- private helpers
+function ingestOptions(flags) {
+  return { onlyMember: !flags.all, full: !!flags.full, downloadFiles: !flags["no-files"] };
+}
+
+function formatPersonRow(person) {
+  const tags = [person.roles.join("/"), person.dm_count ? `${person.dm_count} DMs` : ""].filter(Boolean).join(", ");
+  const title = (person.title || "").slice(0, 34);
+  return `${person.name.padEnd(28)} ${title.padEnd(34)} ${(person.linkedin[0] || "").padEnd(50)} ${tags}`;
+}
+
+function oneLine(text) {
+  return text.replace(/\n/g, " ");
+}

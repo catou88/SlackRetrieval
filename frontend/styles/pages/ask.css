@@ -1,0 +1,29 @@
+/* ---------- Ask ---------- */
+.view--ask .page > * { max-width: 720px; margin-left: auto; margin-right: auto; }
+.ask-head { text-align: center; }
+.ask-head .lede { margin-left: auto; margin-right: auto; }
+.ask { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow-card), 0 12px 32px -20px rgb(28 25 23 / .25); padding: 14px; }
+.ask:focus-within { box-shadow: 0 0 0 2px var(--accent); }
+.ask__input { width: 100%; border: 0; background: none; resize: none; font-size: 16px; line-height: 22px; outline: none; min-height: 66px; }
+.ask__bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.ask__scope { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.ask__bar kbd { background: transparent; box-shadow: none; color: inherit; opacity: .6; }
+.picker { position: relative; }
+.picker .input { width: 200px; height: 32px; }
+.picker__list { position: absolute; top: calc(100% + 4px); left: 0; width: 260px; z-index: 20; background: var(--raised); border-radius: var(--r-md); box-shadow: var(--shadow-pop); padding: 4px; }
+.picker__list li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--r-sm); cursor: pointer; }
+.picker__list li:hover { background: color-mix(in oklab, var(--accent) var(--tint), var(--raised)); }
+.check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.ask-tries { justify-content: center; margin: 16px 0 28px; }
+.answer { font-size: 15px; line-height: 1.6; }
+.answer p + p { margin-top: 10px; }
+.cite { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; margin: 0 1px; border-radius: 4px; background: var(--sunken); font: 500 11px var(--font-mono); text-decoration: none; vertical-align: 2px; }
+.src-h { margin: 28px 0 8px; }
+.sources { list-style: none; padding: 0; }
+.sources li { display: grid; grid-template-columns: 16px 28px minmax(0, 1fr); gap: 10px; padding: 12px 0; border-top: 1px solid var(--border); }
+.sources p { color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
+.ask-try { max-width: 440px; margin: 8px auto 0; }
+.ask-try .eyebrow { margin-bottom: 8px; text-align: center; }
+.ask-try li { padding: 8px 0; border-top: 1px solid var(--border); font-size: 14px; }
+.ask-try a { text-decoration: none; font-weight: 500; }
+.ask-try a:hover { text-decoration: underline; }
