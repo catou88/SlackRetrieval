@@ -5,7 +5,7 @@ LOCK: 2026-11-17T23:29:20Z
 ## Tasks (plan: docs/superpowers/plans/2026-11-17-hackathon-intel.md)
 - [x] T1 Config additions (qwen + intel config, .env.example; interval floor 1s)
 - [x] T2 httpFetcher (rate limit, retry, robots, disk cache; 9 tests)
-- [ ] T3 intelStore
+- [x] T3 intelStore (9 tables, idempotent upserts by source_url, stub-then-fill, filtered reads; 9 tests)
 - [ ] T4 adapter registry + record validation
 - [ ] T5 Devpost parser
 - [ ] T6 eval harness v1
