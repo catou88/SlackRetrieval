@@ -6,8 +6,8 @@ LOCK: 2026-11-17T23:29:20Z
 - [x] T1 Config additions (qwen + intel config, .env.example; interval floor 1s)
 - [x] T2 httpFetcher (rate limit, retry, robots, disk cache; 9 tests)
 - [x] T3 intelStore (9 tables, idempotent upserts by source_url, stub-then-fill, filtered reads; 9 tests)
-- [ ] T4 adapter registry + record validation
-- [ ] T5 Devpost parser
+- [x] T4 adapter registry + record validation (lib/records.js, adapters/registry.js)
+- [x] T5 Devpost parser (cheerio; pure parse* fns + fetchRecords; SYNTHETIC fixtures, selectors unverified vs live Devpost)
 - [ ] T6 eval harness v1
 - [ ] T7 intelIngest + CLI
 - [ ] T8 GitHub adapter
@@ -28,4 +28,7 @@ LOCK: 2026-11-17T23:29:20Z
 - [ ] F final report + Claude Doc
 
 ## Notes
-- Baseline: 32 tests pass.
+- Baseline: 32 tests pass. Now 59.
+- BLOCKED (session 1): devpost.com:443 refused by the cloud egress proxy (403 CONNECT). L1 cannot run until the host is allowed (env network settings) or run locally. Never faked data: fixtures under backend/test/fixtures/devpost/ are hand-written and labelled SYNTHETIC; re-validate selectors on real captures.
+- Gotcha: a bare `cat > file` with no heredoc hangs the shell; always use heredocs.
+- Next up: T6 eval harness (extraction evals on labeled fixtures + intel:eval + history.csv), then T7 intelIngest + CLI.

@@ -1,0 +1,7 @@
+{"hackathons":[
+ {"title":"Bay Agents Hackathon","url":"https://bayagents.example.test/","displayed_location":{"location":"San Francisco, CA"},"submission_period_dates":"Feb 07 - 09, 2026"},
+ {"title":"NYC Build Weekend","url":"https://nycbuild.example.test/","displayed_location":{"location":"New York, NY"},"submission_period_dates":"Mar 01 - 03, 2026"},
+ {"title":"SF Old Hack","url":"https://sfold.example.test/","displayed_location":{"location":"San Francisco, CA"},"submission_period_dates":"Nov 03 - 05, 2025"},
+ {"title":"Online Global Jam","url":"https://jam.example.test/","displayed_location":{"location":"Online"},"submission_period_dates":"Apr 01 - 30, 2026"},
+ {"title":"New Year SF Marathon","url":"https://marathon.example.test/","displayed_location":{"location":"San Francisco, CA"},"submission_period_dates":"Dec 30, 2025 - Jan 02, 2026"}
+]}
