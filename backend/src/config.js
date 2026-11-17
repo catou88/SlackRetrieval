@@ -14,6 +14,10 @@ const DEFAULT_CLAUDE_TIMEOUT_MS = 60_000;
 const DEFAULT_EMBED_MODEL = "Xenova/all-MiniLM-L6-v2";
 const DEFAULT_CATEGORY_THRESHOLD = 0.45;
 const DEFAULT_PG_PORT = 5433;
+const DEFAULT_QWEN_BASE_URL = "http://localhost:11434/v1"; // Ollama's OpenAI-compatible endpoint
+const DEFAULT_QWEN_MODEL = "qwen3:8b";
+const DEFAULT_QWEN_TIMEOUT_MS = 120_000;
+const DEFAULT_HTTP_MIN_INTERVAL_MS = 1000; // politeness floor: >=1s between requests to one host
 const PLACEHOLDER_KEY_MARK = "your-key"; // the value shipped in .env.example
 
 /**
@@ -52,6 +56,8 @@ export function buildConfig(env) {
     claude: claudeConfig(env),
     slack: { token: env.SLACK_USER_TOKEN || "", cookie: (env.SLACK_COOKIE || "").trim() },
     pg: pgConfig(env),
+    qwen: qwenConfig(env),
+    intel: intelConfig(env),
     cache: cacheConfig(env),
     systemRoot: env.SystemRoot || "C:\\Windows", // where Windows keeps tar.exe
   });
@@ -68,6 +74,27 @@ function claudeConfig(env) {
     model: env.CLAUDE_MODEL || DEFAULT_CLAUDE_MODEL,
     timeoutMs: Number(env.CLAUDE_TIMEOUT_MS) || DEFAULT_CLAUDE_TIMEOUT_MS,
     isConfigured: hasRealKey || !!env.ANTHROPIC_AUTH_TOKEN,
+  };
+}
+
+function qwenConfig(env) {
+  return {
+    baseUrl: (env.QWEN_BASE_URL || DEFAULT_QWEN_BASE_URL).replace(/\/+$/, ""),
+    model: env.QWEN_MODEL || DEFAULT_QWEN_MODEL,
+    timeoutMs: Number(env.QWEN_TIMEOUT_MS) || DEFAULT_QWEN_TIMEOUT_MS,
+  };
+}
+
+// Why a floor on minInterval: scrapers must never hammer a site, so even a
+// misconfigured env cannot go below one request per second per host.
+function intelConfig(env) {
+  const requested = Number(env.INTEL_MIN_INTERVAL_MS);
+  return {
+    githubToken: env.GITHUB_TOKEN || "",
+    http: {
+      minIntervalMs: Math.max(requested || DEFAULT_HTTP_MIN_INTERVAL_MS, DEFAULT_HTTP_MIN_INTERVAL_MS),
+      userAgent: "HackathonIntelBot/1.0 (research; respects robots.txt)",
+    },
   };
 }
 
