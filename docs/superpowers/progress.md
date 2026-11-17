@@ -1,6 +1,5 @@
 # Progress
 
-LOCK: 2026-11-17T23:29:20Z
 
 ## Tasks (plan: docs/superpowers/plans/2026-11-17-hackathon-intel.md)
 - [x] T1 Config additions (qwen + intel config, .env.example; interval floor 1s)
@@ -32,3 +31,4 @@ LOCK: 2026-11-17T23:29:20Z
 - BLOCKED (session 1): devpost.com:443 refused by the cloud egress proxy (403 CONNECT). L1 cannot run until the host is allowed (env network settings) or run locally. Never faked data: fixtures under backend/test/fixtures/devpost/ are hand-written and labelled SYNTHETIC; re-validate selectors on real captures.
 - Gotcha: a bare `cat > file` with no heredoc hangs the shell; always use heredocs.
 - Next up: T6 eval harness (extraction evals on labeled fixtures + intel:eval + history.csv), then T7 intelIngest + CLI.
+- Session 1 skipped the parallel critic/judge round (time); T1-T5 should get a code-review + architecture pass at the start of session 2 before T6.
