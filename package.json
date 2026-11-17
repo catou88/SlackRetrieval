@@ -4,7 +4,7 @@
   "description": "RAG over my Cal Hacks 2026 Slack: messages, LinkedIn, mentors",
   "scripts": {
     "start": "node backend/src/main.js serve",
-    "test": "node --test backend/test/",
+    "test": "node --test",
     "sync": "node backend/src/main.js sync",
     "ingest": "node backend/src/main.js ingest",
     "index": "node backend/src/main.js index",
