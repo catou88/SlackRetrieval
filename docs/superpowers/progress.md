@@ -22,7 +22,7 @@
 - [x] T15 RAG eval: 42 SYNTHETIC questions (27 dev/15 heldout), recall@5/MRR/unknown-gate; answer metrics skipped (no Qwen)
 - [x] T16 intel:bench -> docs/evals/bench-<date>.md + bench-history.csv
 - [x] T17 HTTP routes (/api/intel/{hackathons,projects,project?id,people,person?id,sponsors,jobs} + POST ask; 116 tests)
-- [ ] T18 practice + teammateFinder
+- [x] T18 practice (pickTrack/revealTrack) + teammateFinder + routes /api/intel/{teammates,practice,practice/reveal}; 120 tests
 - [ ] T19 frontend Winners/Detail
 - [ ] T20 frontend remaining pages + design/a11y review
 - [ ] L1 live Devpost scrape

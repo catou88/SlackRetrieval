@@ -60,3 +60,17 @@ test("ask validates input, returns the answer, and maps model failure to 503", a
     assert.ok(!(await res.text()).includes("secret"));
   });
 });
+
+test("teammates, practice and reveal routes", async () => {
+  await withServer({}, async (base) => {
+    assert.equal((await fetch(`${base}/api/intel/teammates`)).status, 400);
+    assert.ok(Array.isArray(await (await fetch(`${base}/api/intel/teammates?q=python`)).json()));
+    const practice = await (await fetch(`${base}/api/intel/practice`)).json();
+    assert.equal(practice.track.prize, "Grand Prize");
+    assert.equal(practice.winners, undefined);
+    const { hackathonId, prize } = practice.track;
+    const revealed = await (await fetch(`${base}/api/intel/practice/reveal?hackathon=${hackathonId}&prize=${encodeURIComponent(prize)}`)).json();
+    assert.equal(revealed.winners[0].title, "Robo Chef");
+    assert.equal((await fetch(`${base}/api/intel/practice/reveal?hackathon=${hackathonId}&prize=nope`)).status, 404);
+  });
+});

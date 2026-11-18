@@ -6,6 +6,8 @@ import { DomainError, InvalidInputError, NotFoundError } from "../../lib/errors.
 import {
   listProjects, getProject, listHackathons, listSponsors, listJobs, listPeople,
 } from "../../data/intelStore.js";
+import { findTeammates } from "../../services/teammateFinder.js";
+import { pickTrack, revealTrack } from "../../services/practice.js";
 import { createIntelRag } from "../../services/intelRag.js";
 import { createQwenClient } from "../../clients/qwen.js";
 import { embed } from "../../clients/embedder.js";
@@ -67,6 +69,31 @@ export function createIntelRoutes({ getRag = defaultRagFor } = {}) {
       },
       handle: ({ db, query }) => {
         return listJobs(db, definedFilters(query, ["source", "channel", "company", "sponsor"]));
+      },
+    },
+    {
+      method: "GET",
+      path: "/api/intel/teammates",
+      validateQuery: (query) => requireTextParam(query, "q", MAX_FILTER_CHARS),
+      handle: ({ db, query }) => findTeammates(db, query.get("q")),
+    },
+    {
+      method: "GET",
+      path: "/api/intel/practice",
+      isCacheable: false, // random each time
+      handle: ({ db }) => pickTrack(db) ?? { track: null },
+    },
+    {
+      method: "GET",
+      path: "/api/intel/practice/reveal",
+      validateQuery: (query) => {
+        requireTextParam(query, "hackathon", 20);
+        requireTextParam(query, "prize", MAX_FILTER_CHARS);
+      },
+      handle: ({ db, query }) => {
+        const revealed = revealTrack(db, { hackathonId: Number(query.get("hackathon")), prize: query.get("prize") });
+        if (!revealed) throw new NotFoundError("track");
+        return revealed;
       },
     },
     {
