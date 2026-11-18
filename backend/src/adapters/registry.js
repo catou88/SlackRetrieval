@@ -3,11 +3,12 @@
 // Services only ever talk to this registry, never to a specific adapter.
 import * as devpost from "./devpost.js";
 import * as github from "./github.js";
+import * as jobs from "./jobs.js";
 import * as huggingface from "./huggingface.js";
 import * as manual from "./manualImport.js";
 import * as slack from "./slack.js";
 
-const ADAPTERS = [devpost, github, huggingface, manual, slack];
+const ADAPTERS = [devpost, github, huggingface, jobs, manual, slack];
 
 /** @returns {string[]} adapter names */
 export function adapterNames() {

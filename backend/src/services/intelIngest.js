@@ -3,7 +3,7 @@
 // and writes it to the intel store, so one bad record never aborts a run.
 import { getAdapter, adapterNames } from "../adapters/registry.js";
 import { validateRecord } from "../lib/records.js";
-import { createIntelTables, upsertRecord, intelCounts, listProjects } from "../data/intelStore.js";
+import { createIntelTables, upsertRecord, intelCounts, listProjects, listSponsors } from "../data/intelStore.js";
 
 const MAX_REPORTED_PROBLEMS = 20;
 
@@ -18,8 +18,8 @@ const MAX_REPORTED_PROBLEMS = 20;
 export async function ingestFromAdapter(db, adapterName, options = {}, deps = {}) {
   createIntelTables(db);
   const adapter = getAdapter(adapterName);
-  // Adapters that enrich existing rows (github) read them from `projects`.
-  const records = await adapter.fetchRecords(options, { projects: listProjects(db), ...deps });
+  // Adapters that enrich existing rows (github, jobs) read them from `projects`/`sponsors`.
+  const records = await adapter.fetchRecords(options, { projects: listProjects(db), sponsors: listSponsors(db), ...deps });
   const problems = [];
   let stored = 0;
   for (const record of records) {
