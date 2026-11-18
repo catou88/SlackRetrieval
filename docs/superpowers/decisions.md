@@ -32,3 +32,8 @@
 - jobs-gold.json fixture was written alongside the rules: P/R 1.0 is a regression guard, not independent evidence. Extend with real labelled messages after live use.
 - Review round: Discord DM exports (Direct* type / guild id 0) are refused; Slack bot posts kept (job bots are a main source); seeker rule only wins when no 'we're hiring' phrase; questions about hiring rejected; job link taken from the Slack href side only and must be https without userinfo; sponsor link by case-insensitive name; eval field accuracy is 0 when nothing detected.
 - Detail endpoints use ?id= (router matches exact paths; /api/intel/projects/:id would need router changes). Intel tables created at server start.
+
+## Session 5
+- BUG FOUND: intel `people` table collided with the Slack `people` table in the shared slack.db (Slack rebuild crashed with FK error / wrong schema). Renamed to `hackathon_people`; intelCounts still reports it as "people". Existing DBs: an old intel-only `people` table could only exist if intel ingest ran before Slack tables, which the CLI never did in practice; no migration written.
+- Detail routes use ?id= (router matches exact paths). Intel tables are created at server start.
+- Frontend: scraped/chat URLs only render as anchors when https without credentials (utils/safeLink.js); html`` escapes all text.

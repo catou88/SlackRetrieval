@@ -1,0 +1,17 @@
+/* ---------- Hackathon intel (winners, project detail, jobs, teammates, practice) ---------- */
+.intel-cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: var(--s-4); }
+.intel-card { padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-2); }
+.intel-card__title { font: 400 22px/1.2 var(--font-display); margin: 0; overflow-wrap: anywhere; }
+.intel-card__title a { color: var(--text); text-decoration: none; }
+.intel-card__title a:hover, .intel-card__title a:focus-visible { text-decoration: underline; }
+.intel-chips { display: flex; flex-wrap: wrap; gap: var(--s-1); list-style: none; margin: 0; padding: 0; }
+.intel-links { display: flex; flex-wrap: wrap; gap: var(--s-3); margin: var(--s-2) 0 0; }
+.intel-check { display: inline-flex; align-items: center; gap: var(--s-2); font-size: 13px; color: var(--muted); min-height: 32px; }
+.intel-members { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
+.intel-member { padding: var(--s-4); }
+.intel-member__name { font: 600 15px var(--font-ui); margin: 0; }
+.intel-section p { max-width: var(--measure); }
+.back { display: inline-block; margin-bottom: var(--s-3); color: var(--muted); }
+.intel-section { margin-top: var(--s-5); }
+.intel-section .sec-head { margin: 0 0 var(--s-2); }
+.toolbar { margin-bottom: var(--s-3); }

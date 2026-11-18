@@ -15,16 +15,16 @@ const INTEL_DDL = `
     devpost_url TEXT, github_url TEXT, hf_url TEXT, built_with TEXT, is_winner INTEGER DEFAULT 0,
     what_it_is TEXT, architecture TEXT, readme TEXT, file_tree TEXT, github_stats TEXT, hf_info TEXT
   );
-  CREATE TABLE IF NOT EXISTS people (
+  CREATE TABLE IF NOT EXISTS hackathon_people (
     id INTEGER PRIMARY KEY, source_url TEXT UNIQUE NOT NULL, source TEXT, name TEXT NOT NULL,
     devpost_url TEXT, github_url TEXT, linkedin_url TEXT, bio TEXT, skills TEXT
   );
   CREATE TABLE IF NOT EXISTS project_members (
-    project_id INTEGER NOT NULL REFERENCES projects(id), person_id INTEGER NOT NULL REFERENCES people(id),
+    project_id INTEGER NOT NULL REFERENCES projects(id), person_id INTEGER NOT NULL REFERENCES hackathon_people(id),
     PRIMARY KEY (project_id, person_id)
   );
   CREATE TABLE IF NOT EXISTS contributions (
-    project_id INTEGER NOT NULL REFERENCES projects(id), person_id INTEGER NOT NULL REFERENCES people(id),
+    project_id INTEGER NOT NULL REFERENCES projects(id), person_id INTEGER NOT NULL REFERENCES hackathon_people(id),
     summary TEXT NOT NULL, evidence TEXT, source TEXT,
     PRIMARY KEY (project_id, person_id)
   );
@@ -72,8 +72,9 @@ export function upsertRecord(db, record) {
 
 /** @returns {Record<string, number>} row count per table, for ingest summaries */
 export function intelCounts(db) {
-  const tables = ["hackathons", "projects", "people", "sponsors", "jobs", "contributions"];
-  return Object.fromEntries(tables.map((t) => [t, db.prepare(`SELECT COUNT(*) AS n FROM ${t}`).get().n]));
+  const tables = ["hackathons", "projects", "hackathon_people", "sponsors", "jobs", "contributions"];
+  // Report the table as "people": its name in the hackathon_people table is an implementation detail.
+  return Object.fromEntries(tables.map((t) => [t === "hackathon_people" ? "people" : t, db.prepare(`SELECT COUNT(*) AS n FROM ${t}`).get().n]));
 }
 
 /**
@@ -105,7 +106,7 @@ export function getProject(db, id) {
   const project = withProjectRelations(db, row);
   project.contributions = db.prepare(
     `SELECT c.person_id, pe.name, c.summary, c.evidence FROM contributions c
-     JOIN people pe ON pe.id = c.person_id WHERE c.project_id = ?`).all(id)
+     JOIN hackathon_people pe ON pe.id = c.person_id WHERE c.project_id = ?`).all(id)
     .map((c) => ({ ...c, evidence: parseJson(c.evidence, []) }));
   return project;
 }
@@ -146,7 +147,7 @@ export function setProjectSummary(db, projectId, { what, architecture, sources }
 
 /** @returns {object[]} people with the projects they worked on */
 export function listPeople(db) {
-  return db.prepare("SELECT * FROM people ORDER BY name").all().map((row) => ({
+  return db.prepare("SELECT * FROM hackathon_people ORDER BY name").all().map((row) => ({
     ...row,
     skills: parseJson(row.skills, []),
     projects: db.prepare(`SELECT p.id, p.title, p.is_winner FROM project_members m
@@ -201,26 +202,26 @@ function upsertProject(db, { source, sourceUrl, data }) {
       .run(id, prize.name, sponsorId, prize.isWinner === false ? 0 : 1);
   }
   for (const member of data.members ?? []) {
-    const personId = ensureStub(db, "people", member.url, member.name);
+    const personId = ensureStub(db, "hackathon_people", member.url, member.name);
     db.prepare("INSERT OR IGNORE INTO project_members (project_id, person_id) VALUES (?, ?)").run(id, personId);
   }
   return id;
 }
 
 function upsertPerson(db, { source, sourceUrl, data }) {
-  db.prepare(`INSERT INTO people (source_url, source, name, devpost_url, github_url, linkedin_url, bio, skills)
+  db.prepare(`INSERT INTO hackathon_people (source_url, source, name, devpost_url, github_url, linkedin_url, bio, skills)
     VALUES (@sourceUrl, @source, @name, @devpostUrl, @githubUrl, @linkedinUrl, @bio, @skills)
-    ON CONFLICT(source_url) DO UPDATE SET name=excluded.name, devpost_url=COALESCE(excluded.devpost_url, people.devpost_url),
-      github_url=COALESCE(excluded.github_url, people.github_url), linkedin_url=COALESCE(excluded.linkedin_url, people.linkedin_url),
-      bio=COALESCE(excluded.bio, people.bio), skills=excluded.skills`)
+    ON CONFLICT(source_url) DO UPDATE SET name=excluded.name, devpost_url=COALESCE(excluded.devpost_url, hackathon_people.devpost_url),
+      github_url=COALESCE(excluded.github_url, hackathon_people.github_url), linkedin_url=COALESCE(excluded.linkedin_url, hackathon_people.linkedin_url),
+      bio=COALESCE(excluded.bio, hackathon_people.bio), skills=excluded.skills`)
     .run({ sourceUrl, source, name: data.name, devpostUrl: data.devpostUrl ?? null, githubUrl: data.githubUrl ?? null,
       linkedinUrl: data.linkedinUrl ?? null, bio: data.bio ?? null, skills: JSON.stringify(data.skills ?? []) });
-  return idOf(db, "people", sourceUrl);
+  return idOf(db, "hackathon_people", sourceUrl);
 }
 
 function upsertContribution(db, { source, data }) {
   const projectId = idOf(db, "projects", data.projectUrl);
-  const personId = idOf(db, "people", data.personUrl);
+  const personId = idOf(db, "hackathon_people", data.personUrl);
   if (!projectId || !personId) throw new Error("Contribution references an unknown project or person");
   db.prepare(`INSERT INTO contributions (project_id, person_id, summary, evidence, source) VALUES (?, ?, ?, ?, ?)
     ON CONFLICT(project_id, person_id) DO UPDATE SET summary=excluded.summary, evidence=excluded.evidence, source=excluded.source`)
@@ -288,7 +289,7 @@ function withProjectRelations(db, row) {
     prizes: db.prepare(`SELECT pp.prize, pp.is_winner, s.name AS sponsor FROM project_prizes pp
                         LEFT JOIN sponsors s ON s.id = pp.sponsor_id WHERE pp.project_id = ?`).all(row.id),
     members: db.prepare(`SELECT pe.id, pe.name, pe.source_url, pe.bio, pe.skills, pe.devpost_url, pe.github_url, pe.linkedin_url FROM project_members m
-                         JOIN people pe ON pe.id = m.person_id WHERE m.project_id = ?`).all(row.id)
+                         JOIN hackathon_people pe ON pe.id = m.person_id WHERE m.project_id = ?`).all(row.id)
       .map((m) => ({ ...m, skills: parseJson(m.skills, []) })),
   };
 }

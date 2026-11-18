@@ -23,7 +23,7 @@
 - [x] T16 intel:bench -> docs/evals/bench-<date>.md + bench-history.csv
 - [x] T17 HTTP routes (/api/intel/{hackathons,projects,project?id,people,person?id,sponsors,jobs} + POST ask; 116 tests)
 - [x] T18 practice (pickTrack/revealTrack) + teammateFinder + routes /api/intel/{teammates,practice,practice/reveal}; 120 tests
-- [ ] T19 frontend Winners/Detail
+- [x] T19 frontend Winners + Project detail (#/winners, #/winners/:id; intelApi.js, safeLink.js, intel.css; browser-smoke-tested with seeded DB, XSS+javascript: links verified inert). Also FIXED collision: intel people table -> hackathon_people
 - [ ] T20 frontend remaining pages + design/a11y review
 - [ ] L1 live Devpost scrape
 - [ ] L2 live GitHub enrichment

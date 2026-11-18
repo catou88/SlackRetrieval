@@ -90,3 +90,12 @@ test("jobs link to a sponsor deduped by name across adapters", () => {
   assert.equal(listSponsors(db)[0].prize_count, 1);
   assert.equal(listJobs(db, { sponsor: "ACME" }).length, 1);
 });
+
+test("intel tables coexist with the Slack people table and survive a Slack rebuild", async () => {
+  const { rebuildDb } = await import("../../src/data/db.js");
+  const db = new Database(":memory:");
+  createIntelTables(db);
+  upsertRecord(db, { kind: "person", source: "t", sourceUrl: "https://p/1", data: { name: "Ada" } });
+  rebuildDb(db, { people: {}, channels: [], messages: [], categories: {}, categoryDetails: {} }, { log: () => {} });
+  assert.equal(intelCounts(db).people, 1);
+});

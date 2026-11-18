@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { id: "people", href: "#/people", label: "People", icon: "users", count: () => store.people.length },
   { id: "opportunities", href: "#/opportunities", label: "Opportunities", short: "Opps", icon: "briefcase", count: () => store.opportunityCount },
   { id: "teammates", href: "#/teammates", label: "Teammates", short: "Team", icon: "handshake", count: () => store.teammates.length },
+  { id: "winners", href: "#/winners", label: "Winners", icon: "sparkles" },
   { id: "archive", href: "#/archive", label: "Archive", icon: "archive" },
   // Ask lives in the topbar on phones, so the tab bar skips it.
   { id: "ask", href: "#/ask", label: "Ask", icon: "sparkles", isRailOnly: true },
