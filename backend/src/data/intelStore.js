@@ -14,7 +14,7 @@ const INTEL_DDL = `
     id INTEGER PRIMARY KEY, source_url TEXT UNIQUE NOT NULL, source TEXT, title TEXT NOT NULL,
     tagline TEXT, description TEXT, hackathon_id INTEGER REFERENCES hackathons(id),
     devpost_url TEXT, github_url TEXT, hf_url TEXT, built_with TEXT, is_winner INTEGER DEFAULT 0,
-    what_it_is TEXT, architecture TEXT, readme TEXT, file_tree TEXT, github_stats TEXT
+    what_it_is TEXT, architecture TEXT, readme TEXT, file_tree TEXT, github_stats TEXT, hf_info TEXT
   );
   CREATE TABLE IF NOT EXISTS people (
     id INTEGER PRIMARY KEY, source_url TEXT UNIQUE NOT NULL, source TEXT, name TEXT NOT NULL,
@@ -162,20 +162,21 @@ function upsertProject(db, { source, sourceUrl, data }) {
   const prizes = data.prizes ?? [];
   const isWinner = prizes.some((p) => p.isWinner !== false) ? 1 : 0;
   db.prepare(`INSERT INTO projects (source_url, source, title, tagline, description, hackathon_id, devpost_url, github_url,
-      hf_url, built_with, is_winner, readme, file_tree, github_stats)
+      hf_url, built_with, is_winner, readme, file_tree, github_stats, hf_info)
     VALUES (@sourceUrl, @source, @title, @tagline, @description, @hackathonId, @devpostUrl, @githubUrl, @hfUrl,
-      @builtWith, @isWinner, @readme, @fileTree, @githubStats)
+      @builtWith, @isWinner, @readme, @fileTree, @githubStats, @hfInfo)
     ON CONFLICT(source_url) DO UPDATE SET title=excluded.title, tagline=COALESCE(excluded.tagline, projects.tagline),
       description=COALESCE(excluded.description, projects.description), hackathon_id=COALESCE(excluded.hackathon_id, projects.hackathon_id),
       devpost_url=COALESCE(excluded.devpost_url, projects.devpost_url), github_url=COALESCE(excluded.github_url, projects.github_url),
       hf_url=COALESCE(excluded.hf_url, projects.hf_url), built_with=COALESCE(excluded.built_with, projects.built_with), is_winner=MAX(excluded.is_winner, projects.is_winner),
-      github_stats=COALESCE(excluded.github_stats, projects.github_stats),
+      github_stats=COALESCE(excluded.github_stats, projects.github_stats), hf_info=COALESCE(excluded.hf_info, projects.hf_info),
       readme=COALESCE(excluded.readme, projects.readme), file_tree=COALESCE(excluded.file_tree, projects.file_tree)`)
     .run({ sourceUrl, source, title: data.title, tagline: data.tagline ?? null, description: data.description ?? null,
       hackathonId, devpostUrl: data.devpostUrl ?? null, githubUrl: data.githubUrl ?? null, hfUrl: data.hfUrl ?? null,
       builtWith: data.builtWith ? JSON.stringify(data.builtWith) : null, isWinner, readme: data.readme ?? null,
       fileTree: data.fileTree ? JSON.stringify(data.fileTree) : null,
-      githubStats: data.githubStats ? JSON.stringify(data.githubStats) : null });
+      githubStats: data.githubStats ? JSON.stringify(data.githubStats) : null,
+      hfInfo: data.hfInfo ? JSON.stringify(data.hfInfo) : null });
   const id = idOf(db, "projects", sourceUrl);
   for (const prize of prizes) {
     const sponsorId = prize.sponsor ? ensureSponsor(db, typeof prize.sponsor === "string" ? { name: prize.sponsor } : prize.sponsor) : null;
@@ -253,6 +254,7 @@ function withProjectRelations(db, row) {
     built_with: parseJson(row.built_with, []),
     file_tree: parseJson(row.file_tree, null),
     github_stats: parseJson(row.github_stats, null),
+    hf_info: parseJson(row.hf_info, null),
     prizes: db.prepare(`SELECT pp.prize, pp.is_winner, s.name AS sponsor FROM project_prizes pp
                         LEFT JOIN sponsors s ON s.id = pp.sponsor_id WHERE pp.project_id = ?`).all(row.id),
     members: db.prepare(`SELECT pe.id, pe.name, pe.devpost_url, pe.github_url, pe.linkedin_url FROM project_members m
@@ -263,7 +265,9 @@ function withProjectRelations(db, row) {
 // Databases created before a column existed get it added (CREATE IF NOT EXISTS won't).
 function addMissingColumns(db) {
   const columns = db.prepare("PRAGMA table_info(projects)").all().map((c) => c.name);
-  if (!columns.includes("github_stats")) db.exec("ALTER TABLE projects ADD COLUMN github_stats TEXT");
+  for (const column of ["github_stats", "hf_info"]) {
+    if (!columns.includes(column)) db.exec(`ALTER TABLE projects ADD COLUMN ${column} TEXT`);
+  }
 }
 
 function parseJson(text, fallback) {
