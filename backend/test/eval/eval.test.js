@@ -40,3 +40,9 @@ test("report writer creates a markdown report and appends history", () => {
   assert.deepEqual(metricDeltas(historyFile, "extraction"), [{ metric: "winner.recall", previous: 0.5, current: 0.75 }]);
   fs.rmSync(dir, { recursive: true });
 });
+
+test("jobs eval scores the labelled chat messages", async () => {
+  const { runJobsEval } = await import("../../src/eval/jobsEval.js");
+  const m = runJobsEval(GOLD.replace("devpost-gold", "jobs-gold"));
+  assert.ok(m["job_detect.precision"] >= 0.9 && m["job_detect.recall"] >= 0.9);
+});

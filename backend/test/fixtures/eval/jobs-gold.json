@@ -1,0 +1,21 @@
+{
+  "note": "SYNTHETIC hand-labelled chat messages (Slack mrkdwn and Discord markdown). Replace/extend with real labelled exports.",
+  "messages": [
+    {"text": "*Acme AI* is hiring a Machine Learning Engineer Intern in San Francisco! Apply here: <https://boards.greenhouse.io/acme/jobs/1|Greenhouse>", "channel": "#jobs", "isJob": true, "company": "Acme AI", "location": "San Francisco", "link": "https://boards.greenhouse.io/acme/jobs/1"},
+    {"text": "We're hiring a Founding Engineer at Initech (Remote). Apply now https://jobs.ashbyhq.com/initech/x", "channel": "#general", "isJob": true, "company": "Initech", "location": "Remote", "link": "https://jobs.ashbyhq.com/initech/x"},
+    {"text": "Globex is hiring summer 2026 SWE interns. Location: New York, NY. Details https://globex.example/careers", "channel": "#opportunities", "isJob": true, "company": "Globex", "location": "New York", "link": "https://globex.example/careers"},
+    {"text": "**Open role** at Umbrella Labs: Research Scientist, Hybrid in Bay Area. https://jobs.lever.co/umbrella/abc", "channel": "job-board", "isJob": true, "company": "Umbrella Labs", "location": "Hybrid", "link": "https://jobs.lever.co/umbrella/abc"},
+    {"text": "Hey all, we are hiring new grad software engineers at Hooli in Mountain View, DM me or apply at https://hooli.example/jobs/42", "channel": "#recruiting", "isJob": true, "company": "Hooli", "location": "Mountain View", "link": "https://hooli.example/jobs/42"},
+    {"text": "Internship opportunity: AI Research Intern at Stark Robotics, Palo Alto. Apply today https://stark.example/careers/ai-intern", "channel": "#internships", "isJob": true, "company": "Stark Robotics", "location": "Palo Alto", "link": "https://stark.example/careers/ai-intern"},
+    {"text": "I'm currently looking for a summer 2026 ML internship, anyone hiring? Happy to share my resume", "channel": "#jobs", "isJob": false},
+    {"text": "open to work! looking for SWE roles in SF, DM me", "channel": "#general", "isJob": false},
+    {"text": "The engineer who built our demo is at table 14, come check it out", "channel": "#general", "isJob": false},
+    {"text": "Lunch is served at noon in the main hall, vegetarian options at the east door.", "channel": "#announcements", "isJob": false},
+    {"text": "Our team built a tool for engineers to debug agents, check it out https://devpost.com/software/agent-debug", "channel": "#showcase", "isJob": false},
+    {"text": "thanks!", "channel": "#jobs", "isJob": false},
+    {"text": "How do I land an internship at a startup? Any tips for the interview?", "channel": "#career", "isJob": false},
+    {"text": "Reminder: workshop on prompt engineering at 3pm, the manager of the venue asks everyone to keep aisles clear.", "channel": "#announcements", "isJob": false},
+    {"text": "Wayne Enterprises is hiring Backend Developers! Location: Seattle. https://www.linkedin.com/jobs/view/123", "channel": "#jobs", "isJob": true, "company": "Wayne Enterprises", "location": "Seattle", "link": "https://www.linkedin.com/jobs/view/123"},
+    {"text": "Check the careers page for Soylent: https://soylent.example/careers — several open positions for engineers", "channel": "#jobs", "isJob": true, "company": null, "location": null, "link": "https://soylent.example/careers"}
+  ]
+}

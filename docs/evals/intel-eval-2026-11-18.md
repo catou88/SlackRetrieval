@@ -1,6 +1,6 @@
 # Intel eval 2026-11-18
 
-Commit: 6ab1aaf
+Commit: f430e88
 
 ## extraction
 
@@ -11,6 +11,16 @@ Commit: 6ab1aaf
 | members.f1 | 1 |
 | sponsor_link.accuracy | 1 |
 | sf2026_filter.accuracy | 1 |
+
+## jobs
+
+| metric | value |
+|---|---|
+| job_detect.precision | 1 |
+| job_detect.recall | 1 |
+| job_company.accuracy | 0.875 |
+| job_location.accuracy | 0.875 |
+| job_link.accuracy | 1 |
 
 ## rag(hash-embedder)
 

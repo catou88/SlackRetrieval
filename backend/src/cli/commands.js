@@ -24,11 +24,13 @@ import { runRagEval } from "../eval/ragEval.js";
 import { hashEmbed } from "../eval/hashEmbedder.js";
 import { runBench } from "../eval/bench.js";
 import { runExtractionEval } from "../eval/extractionEval.js";
+import { runJobsEval } from "../eval/jobsEval.js";
 import { writeEvalReport, metricDeltas } from "../eval/report.js";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+const JOBS_GOLD_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "test", "fixtures", "eval", "jobs-gold.json");
 const EVAL_GOLD_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "test", "fixtures", "eval", "devpost-gold.json");
 const EVAL_FIXTURE_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "test", "fixtures", "eval");
 const EVAL_REPORT_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "docs", "evals");
@@ -257,7 +259,7 @@ async function intelEvalCommand() {
   const date = new Date().toISOString().slice(0, 10);
   const qwen = await reachableQwen();
   const rag = await runRagEval({ ...evalFixtures(), embed: hashEmbed, qwen });
-  const suites = { extraction: runExtractionEval(EVAL_GOLD_FILE), "rag(hash-embedder)": rag };
+  const suites = { extraction: runExtractionEval(EVAL_GOLD_FILE), jobs: runJobsEval(JOBS_GOLD_FILE), "rag(hash-embedder)": rag };
   const { reportFile, historyFile } = writeEvalReport(suites, { dir: EVAL_REPORT_DIR, date, commit: currentCommit() });
   console.log(`Wrote ${reportFile}`);
   for (const [suite, metrics] of Object.entries(suites)) {
