@@ -2,8 +2,9 @@
 // exporting `name` and `fetchRecords(options, deps)`, then add it below.
 // Services only ever talk to this registry, never to a specific adapter.
 import * as devpost from "./devpost.js";
+import * as github from "./github.js";
 
-const ADAPTERS = [devpost];
+const ADAPTERS = [devpost, github];
 
 /** @returns {string[]} adapter names */
 export function adapterNames() {

@@ -14,7 +14,7 @@ const INTEL_DDL = `
     id INTEGER PRIMARY KEY, source_url TEXT UNIQUE NOT NULL, source TEXT, title TEXT NOT NULL,
     tagline TEXT, description TEXT, hackathon_id INTEGER REFERENCES hackathons(id),
     devpost_url TEXT, github_url TEXT, hf_url TEXT, built_with TEXT, is_winner INTEGER DEFAULT 0,
-    what_it_is TEXT, architecture TEXT, readme TEXT, file_tree TEXT
+    what_it_is TEXT, architecture TEXT, readme TEXT, file_tree TEXT, github_stats TEXT
   );
   CREATE TABLE IF NOT EXISTS people (
     id INTEGER PRIMARY KEY, source_url TEXT UNIQUE NOT NULL, source TEXT, name TEXT NOT NULL,
@@ -52,6 +52,7 @@ const INTEL_DDL = `
 /** @param {import("better-sqlite3").Database} db */
 export function createIntelTables(db) {
   db.exec(INTEL_DDL);
+  addMissingColumns(db);
 }
 
 /**
@@ -161,18 +162,20 @@ function upsertProject(db, { source, sourceUrl, data }) {
   const prizes = data.prizes ?? [];
   const isWinner = prizes.some((p) => p.isWinner !== false) ? 1 : 0;
   db.prepare(`INSERT INTO projects (source_url, source, title, tagline, description, hackathon_id, devpost_url, github_url,
-      hf_url, built_with, is_winner, readme, file_tree)
+      hf_url, built_with, is_winner, readme, file_tree, github_stats)
     VALUES (@sourceUrl, @source, @title, @tagline, @description, @hackathonId, @devpostUrl, @githubUrl, @hfUrl,
-      @builtWith, @isWinner, @readme, @fileTree)
-    ON CONFLICT(source_url) DO UPDATE SET source=excluded.source, title=excluded.title, tagline=excluded.tagline,
-      description=excluded.description, hackathon_id=COALESCE(excluded.hackathon_id, projects.hackathon_id),
+      @builtWith, @isWinner, @readme, @fileTree, @githubStats)
+    ON CONFLICT(source_url) DO UPDATE SET title=excluded.title, tagline=COALESCE(excluded.tagline, projects.tagline),
+      description=COALESCE(excluded.description, projects.description), hackathon_id=COALESCE(excluded.hackathon_id, projects.hackathon_id),
       devpost_url=COALESCE(excluded.devpost_url, projects.devpost_url), github_url=COALESCE(excluded.github_url, projects.github_url),
-      hf_url=COALESCE(excluded.hf_url, projects.hf_url), built_with=excluded.built_with, is_winner=excluded.is_winner,
+      hf_url=COALESCE(excluded.hf_url, projects.hf_url), built_with=COALESCE(excluded.built_with, projects.built_with), is_winner=MAX(excluded.is_winner, projects.is_winner),
+      github_stats=COALESCE(excluded.github_stats, projects.github_stats),
       readme=COALESCE(excluded.readme, projects.readme), file_tree=COALESCE(excluded.file_tree, projects.file_tree)`)
     .run({ sourceUrl, source, title: data.title, tagline: data.tagline ?? null, description: data.description ?? null,
       hackathonId, devpostUrl: data.devpostUrl ?? null, githubUrl: data.githubUrl ?? null, hfUrl: data.hfUrl ?? null,
-      builtWith: JSON.stringify(data.builtWith ?? []), isWinner, readme: data.readme ?? null,
-      fileTree: data.fileTree ? JSON.stringify(data.fileTree) : null });
+      builtWith: data.builtWith ? JSON.stringify(data.builtWith) : null, isWinner, readme: data.readme ?? null,
+      fileTree: data.fileTree ? JSON.stringify(data.fileTree) : null,
+      githubStats: data.githubStats ? JSON.stringify(data.githubStats) : null });
   const id = idOf(db, "projects", sourceUrl);
   for (const prize of prizes) {
     const sponsorId = prize.sponsor ? ensureSponsor(db, typeof prize.sponsor === "string" ? { name: prize.sponsor } : prize.sponsor) : null;
@@ -249,11 +252,18 @@ function withProjectRelations(db, row) {
     ...row,
     built_with: parseJson(row.built_with, []),
     file_tree: parseJson(row.file_tree, null),
+    github_stats: parseJson(row.github_stats, null),
     prizes: db.prepare(`SELECT pp.prize, pp.is_winner, s.name AS sponsor FROM project_prizes pp
                         LEFT JOIN sponsors s ON s.id = pp.sponsor_id WHERE pp.project_id = ?`).all(row.id),
     members: db.prepare(`SELECT pe.id, pe.name, pe.devpost_url, pe.github_url, pe.linkedin_url FROM project_members m
                          JOIN people pe ON pe.id = m.person_id WHERE m.project_id = ?`).all(row.id),
   };
+}
+
+// Databases created before a column existed get it added (CREATE IF NOT EXISTS won't).
+function addMissingColumns(db) {
+  const columns = db.prepare("PRAGMA table_info(projects)").all().map((c) => c.name);
+  if (!columns.includes("github_stats")) db.exec("ALTER TABLE projects ADD COLUMN github_stats TEXT");
 }
 
 function parseJson(text, fallback) {
