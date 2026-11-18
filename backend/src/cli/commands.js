@@ -289,6 +289,7 @@ function ingestIntelOptions(flags) {
     options.maxHackathons = max;
   }
   if (flags.file) options.file = flags.file;
+  if (CONFIG.slack.workspaceUrl) options.workspaceUrl = CONFIG.slack.workspaceUrl;
   if (CONFIG.intel.githubToken) options.token = CONFIG.intel.githubToken;
   return options;
 }

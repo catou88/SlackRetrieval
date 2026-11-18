@@ -14,7 +14,7 @@ const FIX = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "fixtu
 const read = (f) => fs.readFileSync(path.join(FIX, f), "utf8");
 
 test("registry lists every adapter", () => {
-  assert.deepEqual(adapterNames(), ["devpost", "github", "huggingface", "manual", "slack"]);
+  assert.deepEqual(adapterNames(), ["devpost", "github", "huggingface", "manual", "slack", "slackJobs"]);
 });
 
 test("huggingface parses URLs and enriches projects", async () => {

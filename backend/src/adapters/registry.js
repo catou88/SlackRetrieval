@@ -6,8 +6,9 @@ import * as github from "./github.js";
 import * as huggingface from "./huggingface.js";
 import * as manual from "./manualImport.js";
 import * as slack from "./slack.js";
+import * as slackJobs from "./slackJobs.js";
 
-const ADAPTERS = [devpost, github, huggingface, manual, slack];
+const ADAPTERS = [devpost, github, huggingface, manual, slack, slackJobs];
 
 /** @returns {string[]} adapter names */
 export function adapterNames() {

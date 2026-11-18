@@ -42,7 +42,8 @@ const INTEL_DDL = `
   );
   CREATE TABLE IF NOT EXISTS jobs (
     id INTEGER PRIMARY KEY, source_url TEXT UNIQUE NOT NULL, source TEXT, title TEXT NOT NULL,
-    company TEXT, location TEXT, sponsor_id INTEGER REFERENCES sponsors(id), posted_at TEXT
+    company TEXT, location TEXT, sponsor_id INTEGER REFERENCES sponsors(id), posted_at TEXT,
+    link TEXT, channel TEXT, permalink TEXT, snippet TEXT
   );
   CREATE INDEX IF NOT EXISTS projects_hackathon ON projects(hackathon_id);
   CREATE INDEX IF NOT EXISTS jobs_sponsor ON jobs(sponsor_id);
@@ -120,11 +121,18 @@ export function listSponsors(db) {
                      FROM sponsors s ORDER BY prize_count DESC, s.name`).all();
 }
 
-/** @returns {object[]} jobs with their sponsor name */
-export function listJobs(db, { sponsor } = {}) {
+/**
+ * @param {{ sponsor?: string, source?: string, channel?: string, company?: string }} [filters]  case-insensitive exact matches
+ * @returns {object[]} jobs (newest first) with their sponsor name
+ */
+export function listJobs(db, filters = {}) {
   const rows = db.prepare(`SELECT j.*, s.name AS sponsor_name FROM jobs j LEFT JOIN sponsors s ON s.id = j.sponsor_id
-                           ORDER BY j.id`).all();
-  return sponsor ? rows.filter((j) => j.sponsor_name?.toLowerCase() === sponsor.toLowerCase()) : rows;
+                           ORDER BY j.posted_at DESC, j.id`).all();
+  const same = (a, b) => String(a ?? "").toLowerCase() === b.toLowerCase();
+  return rows.filter((j) => (!filters.sponsor || same(j.sponsor_name, filters.sponsor))
+    && (!filters.source || same(j.source, filters.source))
+    && (!filters.channel || same(j.channel, filters.channel))
+    && (!filters.company || same(j.company, filters.company)));
 }
 
 /**
@@ -227,19 +235,30 @@ function upsertSponsor(db, { sourceUrl, data }) {
 }
 
 function upsertJob(db, { source, sourceUrl, data }) {
-  const sponsorId = data.sponsorName ? ensureSponsor(db, { name: data.sponsorName }) : null;
-  db.prepare(`INSERT INTO jobs (source_url, source, title, company, location, sponsor_id, posted_at)
-    VALUES (@sourceUrl, @source, @title, @company, @location, @sponsorId, @postedAt)
+  // Link to an existing sponsor only: a company seen in a chat post is not thereby a sponsor.
+  const sponsorId = existingSponsorId(db, data.sponsorName ?? data.company);
+  db.prepare(`INSERT INTO jobs (source_url, source, title, company, location, sponsor_id, posted_at, link, channel, permalink, snippet)
+    VALUES (@sourceUrl, @source, @title, @company, @location, @sponsorId, @postedAt, @link, @channel, @permalink, @snippet)
     ON CONFLICT(source_url) DO UPDATE SET title=excluded.title, company=excluded.company, location=excluded.location,
-      sponsor_id=COALESCE(excluded.sponsor_id, jobs.sponsor_id), posted_at=excluded.posted_at`)
+      sponsor_id=COALESCE(excluded.sponsor_id, jobs.sponsor_id), posted_at=excluded.posted_at, link=excluded.link,
+      channel=excluded.channel, permalink=excluded.permalink, snippet=excluded.snippet`)
     .run({ sourceUrl, source, title: data.title, company: data.company ?? null, location: data.location ?? null,
-      sponsorId, postedAt: data.postedAt ?? null });
+      sponsorId, postedAt: data.postedAt ?? null, link: data.link ?? null, channel: data.channel ?? null,
+      permalink: data.permalink ?? null, snippet: data.snippet ?? null });
   return idOf(db, "jobs", sourceUrl);
+}
+
+function existingSponsorId(db, name) {
+  return name ? idOf(db, "sponsors", sponsorKey(name)) : null;
+}
+
+function sponsorKey(name) {
+  return `sponsor:${name.trim().toLowerCase().replace(/\s+/g, "-")}`;
 }
 
 /** Sponsors are keyed by a stable URL; without one, a slug of the name, so "Acme" dedupes across adapters. */
 function ensureSponsor(db, { name, url, website }) {
-  const key = url ?? `sponsor:${name.trim().toLowerCase().replace(/\s+/g, "-")}`;
+  const key = url ?? sponsorKey(name);
   db.prepare(`INSERT INTO sponsors (source_url, name, website) VALUES (?, ?, ?)
     ON CONFLICT(source_url) DO UPDATE SET website=COALESCE(excluded.website, sponsors.website)`).run(key, name, website ?? null);
   return idOf(db, "sponsors", key);
@@ -277,6 +296,10 @@ function addMissingColumns(db) {
   const columns = db.prepare("PRAGMA table_info(projects)").all().map((c) => c.name);
   for (const column of ["github_stats", "hf_info", "summary_what", "summary_architecture", "summary_sources"]) {
     if (!columns.includes(column)) db.exec(`ALTER TABLE projects ADD COLUMN ${column} TEXT`);
+  }
+  const jobColumns = db.prepare("PRAGMA table_info(jobs)").all().map((c) => c.name);
+  for (const column of ["link", "channel", "permalink", "snippet"]) {
+    if (!jobColumns.includes(column)) db.exec(`ALTER TABLE jobs ADD COLUMN ${column} TEXT`);
   }
 }
 

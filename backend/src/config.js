@@ -54,7 +54,7 @@ export function buildConfig(env) {
     embedModel: env.EMBED_MODEL || DEFAULT_EMBED_MODEL,
     categoryThreshold: Number(env.CATEGORY_THRESHOLD) || DEFAULT_CATEGORY_THRESHOLD,
     claude: claudeConfig(env),
-    slack: { token: env.SLACK_USER_TOKEN || "", cookie: (env.SLACK_COOKIE || "").trim() },
+    slack: { token: env.SLACK_USER_TOKEN || "", cookie: (env.SLACK_COOKIE || "").trim(), workspaceUrl: (env.SLACK_WORKSPACE_URL || "").trim() },
     pg: pgConfig(env),
     qwen: qwenConfig(env),
     intel: intelConfig(env),
