@@ -21,7 +21,7 @@
 - [x] T14 intelRag: in-memory index, fenced sources, uncited answer => unknown, minScore 0.25 gate; intel:ask
 - [x] T15 RAG eval: 42 SYNTHETIC questions (27 dev/15 heldout), recall@5/MRR/unknown-gate; answer metrics skipped (no Qwen)
 - [x] T16 intel:bench -> docs/evals/bench-<date>.md + bench-history.csv
-- [ ] T17 HTTP routes
+- [x] T17 HTTP routes (/api/intel/{hackathons,projects,project?id,people,person?id,sponsors,jobs} + POST ask; 116 tests)
 - [ ] T18 practice + teammateFinder
 - [ ] T19 frontend Winners/Detail
 - [ ] T20 frontend remaining pages + design/a11y review

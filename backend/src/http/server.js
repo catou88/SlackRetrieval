@@ -6,6 +6,7 @@ import http from "node:http";
 import { CONFIG } from "../config.js";
 import { isCacheEnabled, startCacheSweep } from "../lib/cache.js";
 import { fileVersion } from "../data/jsonStore.js";
+import { createIntelTables } from "../data/intelStore.js";
 import { openDb, needsRebuild, rebuildDb, loadSnapshot } from "../data/db.js";
 import { llmStoreFor, dataVersion as databaseVersion } from "../data/queries.js";
 import { INDEX_FILES } from "../data/vectorIndex.js";
@@ -54,5 +55,6 @@ export function startServer({ port = CONFIG.port, host = CONFIG.host } = {}) {
 function openDatabaseForServer() {
   const db = openDb();
   if (needsRebuild(db)) rebuildDb(db, loadSnapshot(), { log: () => {} });
+  createIntelTables(db); // so /api/intel/* works before the first intel:ingest
   return db;
 }

@@ -31,3 +31,4 @@
 - Job links are stored only when https (chat text is untrusted; frontend renders them as anchors).
 - jobs-gold.json fixture was written alongside the rules: P/R 1.0 is a regression guard, not independent evidence. Extend with real labelled messages after live use.
 - Review round: Discord DM exports (Direct* type / guild id 0) are refused; Slack bot posts kept (job bots are a main source); seeker rule only wins when no 'we're hiring' phrase; questions about hiring rejected; job link taken from the Slack href side only and must be https without userinfo; sponsor link by case-insensitive name; eval field accuracy is 0 when nothing detected.
+- Detail endpoints use ?id= (router matches exact paths; /api/intel/projects/:id would need router changes). Intel tables created at server start.
