@@ -16,6 +16,8 @@ import { openDb } from "../data/db.js";
 import { createHttpFetcher } from "../clients/httpFetcher.js";
 import { ingestAll } from "../services/intelIngest.js";
 import { createQwenClient } from "../clients/qwen.js";
+import { createIntelRag } from "../services/intelRag.js";
+import { embed } from "../clients/embedder.js";
 import { summarizeAll } from "../services/projectSummaries.js";
 import { summarizeAllContributions } from "../services/contributions.js";
 import { runExtractionEval } from "../eval/extractionEval.js";
@@ -54,6 +56,7 @@ export const COMMANDS = {
   "intel:ingest": intelIngestCommand,
   "intel:eval": intelEvalCommand,
   "intel:summarize": intelSummarizeCommand,
+  "intel:ask": intelAskCommand,
 };
 
 export const USAGE = `Usage (npm run <command> -- …):
@@ -66,6 +69,7 @@ export const USAGE = `Usage (npm run <command> -- …):
   serve [--no-cache]                   local website at http://localhost:3000 (or CACHE=0)
   intel:ingest [--adapter devpost] [--max-hackathons 5]   fetch hackathon winners/people/jobs into the intel tables
   intel:summarize [--force]            write what-it-is + architecture paragraphs with Qwen (needs QWEN_BASE_URL)
+  intel:ask "which winners used LangGraph?"   answer from the hackathon database with Qwen, cited
   intel:eval                           run extraction evals, write docs/evals/intel-eval-<date>.md + history.csv
   backup [--to D:\\]                    zip everything in data/
   ingest | index | db | categorize | pg | collection [name] | pg:search "query" [--in collection]`;
@@ -225,6 +229,19 @@ async function intelSummarizeCommand({ flags }) {
     for (const f of result.failed) console.log(`  - project ${f.id}: ${f.error}`);
     const contributions = await summarizeAllContributions(db, qwen);
     console.log(`contributions for ${contributions.people} people across ${contributions.projects} projects, failed ${contributions.failed.length}`);
+  } finally {
+    db.close();
+  }
+}
+
+async function intelAskCommand({ text }) {
+  if (!text) throw new Error('Usage: intel:ask "your question"');
+  const qwen = createQwenClient();
+  const db = openDb();
+  try {
+    const result = await createIntelRag({ db, embed, qwen }).ask(text);
+    console.log(result.answer);
+    for (const c of result.citations) console.log(`  [${c.n}] ${c.title} (${c.label})`);
   } finally {
     db.close();
   }
