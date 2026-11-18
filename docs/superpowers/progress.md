@@ -45,3 +45,5 @@
 
 - Session 4: SCOPE CHANGE applied (ATS scraping dropped; jobs only from Slack/Discord exports). Removed adapters/jobs.js + tests + fixtures; sponsors.jobs_board no longer written. Tests 101 pass.
 - Session 4 done: J1-J3 + review round (fixed: Discord DM skip, seeker/question rules, link spoof via Slack labels, sponsor lookup by name, bot posts, eval vacuous-1). Tests 114 pass. Not done from review: SQL-side listJobs filters, regex readability. Frontend MUST escape job title/company/snippet/channel (frontend/src/utils/dom.js uses innerHTML) and use rel=noopener noreferrer. `jobs.*` metrics are in intel:eval. Next: T17 HTTP routes (include /api/intel/jobs with source/channel/company filters), T18, T19, T20, then L1/L2, F.
+
+LOCK: 2026-11-18T03:06:07Z
