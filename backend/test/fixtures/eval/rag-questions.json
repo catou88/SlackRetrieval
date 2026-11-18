@@ -1,0 +1,335 @@
+{
+ "note": "Questions generated from the synthetic corpus templates plus hand-written unanswerable ones. Tune only on split=dev.",
+ "questions": [
+  {
+   "q": "Which project won Best Use of Qwen sponsored by Alibaba?",
+   "gold": [
+    "robo-chef"
+   ],
+   "answer": "Robo Chef",
+   "split": "dev"
+  },
+  {
+   "q": "Which winner is built with python and fastapi?",
+   "gold": [
+    "robo-chef"
+   ],
+   "answer": "Robo Chef",
+   "split": "dev"
+  },
+  {
+   "q": "What does Robo Chef do?",
+   "gold": [
+    "robo-chef"
+   ],
+   "answer": "Robot",
+   "split": "dev"
+  },
+  {
+   "q": "Which project took the Grand Prize at Bay Agents Hack?",
+   "gold": [
+    "math-tutor"
+   ],
+   "answer": "Math Tutor",
+   "split": "dev"
+  },
+  {
+   "q": "Which winner is built with typescript and whisper?",
+   "gold": [
+    "math-tutor"
+   ],
+   "answer": "Math Tutor",
+   "split": "dev"
+  },
+  {
+   "q": "What does Math Tutor do?",
+   "gold": [
+    "math-tutor"
+   ],
+   "answer": "Voice",
+   "split": "dev"
+  },
+  {
+   "q": "Which project won Best Geospatial Project sponsored by Mapbox?",
+   "gold": [
+    "wildfire-watch"
+   ],
+   "answer": "Wildfire Watch",
+   "split": "heldout"
+  },
+  {
+   "q": "Which winner is built with python and mapbox?",
+   "gold": [
+    "wildfire-watch"
+   ],
+   "answer": "Wildfire Watch",
+   "split": "heldout"
+  },
+  {
+   "q": "What does Wildfire Watch do?",
+   "gold": [
+    "wildfire-watch"
+   ],
+   "answer": "Satellite",
+   "split": "heldout"
+  },
+  {
+   "q": "Which project won Best Healthcare Agent sponsored by Anthropic?",
+   "gold": [
+    "clinic-scribe"
+   ],
+   "answer": "Clinic Scribe",
+   "split": "dev"
+  },
+  {
+   "q": "Which winner is built with nextjs and postgres?",
+   "gold": [
+    "clinic-scribe"
+   ],
+   "answer": "Clinic Scribe",
+   "split": "dev"
+  },
+  {
+   "q": "What does Clinic Scribe do?",
+   "gold": [
+    "clinic-scribe"
+   ],
+   "answer": "Ambient",
+   "split": "dev"
+  },
+  {
+   "q": "Which project won Best Fintech Hack sponsored by Stripe?",
+   "gold": [
+    "ledger-lens"
+   ],
+   "answer": "Ledger Lens",
+   "split": "dev"
+  },
+  {
+   "q": "Which winner is built with go and stripe?",
+   "gold": [
+    "ledger-lens"
+   ],
+   "answer": "Ledger Lens",
+   "split": "dev"
+  },
+  {
+   "q": "What does Ledger Lens do?",
+   "gold": [
+    "ledger-lens"
+   ],
+   "answer": "Explains",
+   "split": "dev"
+  },
+  {
+   "q": "Which project won Best Agent Workflow sponsored by LangChain?",
+   "gold": [
+    "pocket-lawyer"
+   ],
+   "answer": "Pocket Lawyer",
+   "split": "heldout"
+  },
+  {
+   "q": "Which winner is built with python and langgraph?",
+   "gold": [
+    "pocket-lawyer"
+   ],
+   "answer": "Pocket Lawyer",
+   "split": "heldout"
+  },
+  {
+   "q": "What does Pocket Lawyer do?",
+   "gold": [
+    "pocket-lawyer"
+   ],
+   "answer": "Agent",
+   "split": "heldout"
+  },
+  {
+   "q": "Which project took the Grand Prize at Climate Code SF?",
+   "gold": [
+    "drone-dispatch"
+   ],
+   "answer": "Drone Dispatch",
+   "split": "dev"
+  },
+  {
+   "q": "Which winner is built with rust and ros2?",
+   "gold": [
+    "drone-dispatch"
+   ],
+   "answer": "Drone Dispatch",
+   "split": "dev"
+  },
+  {
+   "q": "What does Drone Dispatch do?",
+   "gold": [
+    "drone-dispatch"
+   ],
+   "answer": "Autonomous",
+   "split": "dev"
+  },
+  {
+   "q": "Which project won Best Accessibility Hack sponsored by Google?",
+   "gold": [
+    "sign-bridge"
+   ],
+   "answer": "Sign Bridge",
+   "split": "dev"
+  },
+  {
+   "q": "Which winner is built with swift and coreml?",
+   "gold": [
+    "sign-bridge"
+   ],
+   "answer": "Sign Bridge",
+   "split": "dev"
+  },
+  {
+   "q": "What does Sign Bridge do?",
+   "gold": [
+    "sign-bridge"
+   ],
+   "answer": "Real-time",
+   "split": "dev"
+  },
+  {
+   "q": "Which project won Best Developer Tool sponsored by GitHub?",
+   "gold": [
+    "merge-mentor"
+   ],
+   "answer": "Merge Mentor",
+   "split": "heldout"
+  },
+  {
+   "q": "Which winner is built with typescript and vscode?",
+   "gold": [
+    "merge-mentor"
+   ],
+   "answer": "Merge Mentor",
+   "split": "heldout"
+  },
+  {
+   "q": "What does Merge Mentor do?",
+   "gold": [
+    "merge-mentor"
+   ],
+   "answer": "Code",
+   "split": "heldout"
+  },
+  {
+   "q": "Which project won Best Use of Postgres sponsored by Supabase?",
+   "gold": [
+    "query-coach"
+   ],
+   "answer": "Query Coach",
+   "split": "dev"
+  },
+  {
+   "q": "Which winner is built with sql and postgres?",
+   "gold": [
+    "query-coach"
+   ],
+   "answer": "Query Coach",
+   "split": "dev"
+  },
+  {
+   "q": "What does Query Coach do?",
+   "gold": [
+    "query-coach"
+   ],
+   "answer": "Teaches",
+   "split": "dev"
+  },
+  {
+   "q": "Which project took the Grand Prize at FinHack San Francisco?",
+   "gold": [
+    "menu-lens"
+   ],
+   "answer": "Menu Lens",
+   "split": "dev"
+  },
+  {
+   "q": "Which winner is built with kotlin and ml-kit?",
+   "gold": [
+    "menu-lens"
+   ],
+   "answer": "Menu Lens",
+   "split": "dev"
+  },
+  {
+   "q": "What does Menu Lens do?",
+   "gold": [
+    "menu-lens"
+   ],
+   "answer": "Scans",
+   "split": "dev"
+  },
+  {
+   "q": "Which project won Best Open Source Project sponsored by Hugging Face?",
+   "gold": [
+    "lab-notebook"
+   ],
+   "answer": "Lab Notebook",
+   "split": "heldout"
+  },
+  {
+   "q": "Which winner is built with python and jupyter?",
+   "gold": [
+    "lab-notebook"
+   ],
+   "answer": "Lab Notebook",
+   "split": "heldout"
+  },
+  {
+   "q": "What does Lab Notebook do?",
+   "gold": [
+    "lab-notebook"
+   ],
+   "answer": "Turns",
+   "split": "heldout"
+  },
+  {
+   "q": "What is the capital of Australia?",
+   "gold": [],
+   "answer": null,
+   "answerable": false,
+   "split": "dev"
+  },
+  {
+   "q": "Who won the 2026 Tokyo robotics marathon?",
+   "gold": [],
+   "answer": null,
+   "answerable": false,
+   "split": "heldout"
+  },
+  {
+   "q": "How many stars does the Linux kernel repository have?",
+   "gold": [],
+   "answer": null,
+   "answerable": false,
+   "split": "dev"
+  },
+  {
+   "q": "What is Menu Lens's annual revenue?",
+   "gold": [],
+   "answer": null,
+   "answerable": false,
+   "split": "heldout"
+  },
+  {
+   "q": "Which hackathon winner raised a Series A?",
+   "gold": [],
+   "answer": null,
+   "answerable": false,
+   "split": "dev"
+  },
+  {
+   "q": "What salary does Stripe pay interns?",
+   "gold": [],
+   "answer": null,
+   "answerable": false,
+   "split": "heldout"
+  }
+ ]
+}

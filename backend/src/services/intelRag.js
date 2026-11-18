@@ -4,13 +4,15 @@
 // The index is in memory (the corpus is hundreds of projects, not millions)
 // and embed/qwen are injected so tests and benchmarks run offline.
 import { listProjects, getProject } from "../data/intelStore.js";
+import { fenceSource, DATA_ONLY_RULE } from "../lib/promptSafety.js";
 
 const DEFAULT_K = 5;
-const DEFAULT_MIN_SCORE = 0.25; // below this the best passage is unrelated: answer "unknown" without calling the model
+export const DEFAULT_MIN_SCORE = 0.25; // below this the best passage is unrelated: answer "unknown" without calling the model
 const README_CHUNK_CHARS = 900;
 const MAX_README_CHUNKS = 3;
 const UNKNOWN_ANSWER = "I don't know: the hackathon database has nothing that answers this.";
 const UNKNOWN_TOKEN = "UNKNOWN";
+const UNKNOWN_REPLY_RE = /^UNKNOWN\b[.!]?$/i;
 
 /**
  * @param {object} deps
@@ -43,8 +45,11 @@ export function createIntelRag({ db, embed, qwen, minScore = DEFAULT_MIN_SCORE }
     const retrieved = await retrieve(question, k);
     if (!retrieved.length || retrieved[0].score < minScore) return unknownResult(retrieved);
     const reply = await qwen.chat(buildMessages(question, retrieved), { temperature: 0.1, maxTokens: 500 });
-    if (reply.trim().toUpperCase().startsWith(UNKNOWN_TOKEN)) return unknownResult(retrieved);
-    return { answer: reply.trim(), unknown: false, citations: citationsFor(reply, retrieved), retrieved: retrieved.map(summarizeHit) };
+    if (UNKNOWN_REPLY_RE.test(reply.trim())) return unknownResult(retrieved);
+    const citations = citationsFor(reply, retrieved);
+    // Spec: every answer cites its sources. An answer with no valid citation cannot be verified, so it is treated as unknown.
+    if (!citations.length) return unknownResult(retrieved);
+    return { answer: reply.trim(), unknown: false, citations, retrieved: retrieved.map(summarizeHit) };
   }
 
   return { buildIndex, retrieve, ask };
@@ -106,9 +111,10 @@ function buildMessages(question, retrieved) {
   const system = [
     "You answer questions about hackathon projects using ONLY the numbered passages.",
     "Cite passages like [1]. Never state a fact the passages do not contain.",
+    DATA_ONLY_RULE,
     `If the passages do not answer the question, reply with exactly ${UNKNOWN_TOKEN}.`,
   ].join(" ");
-  const body = retrieved.map((r, i) => `[${i + 1}] ${r.text}`).join("\n\n");
+  const body = retrieved.map((r, i) => `[${i + 1}] ${fenceSource(`P${i + 1}`, r.text)}`).join("\n\n");
   return [{ role: "system", content: system }, { role: "user", content: `Passages:\n${body}\n\nQuestion: ${question}` }];
 }
 

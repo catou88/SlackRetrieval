@@ -31,7 +31,7 @@ export function createQwenClient(options = {}) {
  * @returns {string}
  */
 export function stripThinking(text) {
-  return String(text ?? "").replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+  return String(text ?? "").replace(/<think>[\s\S]*?<\/think>/g, "").replace(/<think>[\s\S]*$/, "").trim();
 }
 
 // ---------------------------------------------------------------- private helpers
@@ -44,7 +44,10 @@ async function chat(settings, messages, { temperature = 0.1, maxTokens = 800 } =
   });
   if (!response.ok) throw new Error(`Qwen endpoint returned ${response.status}`);
   const json = await response.json();
-  const content = json?.choices?.[0]?.message?.content;
+  const choice = json?.choices?.[0];
+  // Thinking tokens count against max_tokens: a truncated reply is incomplete, so fail instead of storing half an answer.
+  if (choice?.finish_reason === "length") throw new Error("Qwen reply was cut off (raise max tokens)");
+  const content = choice?.message?.content;
   if (typeof content !== "string") throw new Error("Qwen endpoint returned no message content");
   return stripThinking(content);
 }

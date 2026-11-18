@@ -4,15 +4,16 @@
 // unknown slugs would mean hammering sites with misses.
 import { makeRecord } from "../lib/records.js";
 
-export const name = "jobs";
-
-const BOARD_RE = /^(greenhouse|lever|ashby):([\w.-]+)$/i;
+const SLUG = "[A-Za-z0-9][\\w-]*";
+const BOARD_RE = new RegExp(`^(greenhouse|lever|ashby):(${SLUG})$`, "i");
 const URL_BOARDS = [
-  { vendor: "greenhouse", re: /boards\.greenhouse\.io\/([\w.-]+)/i },
-  { vendor: "lever", re: /jobs\.lever\.co\/([\w.-]+)/i },
-  { vendor: "ashby", re: /jobs\.ashbyhq\.com\/([\w.-]+)/i },
+  { vendor: "greenhouse", re: new RegExp(`^https?://boards\\.greenhouse\\.io/(${SLUG})/?$`, "i") },
+  { vendor: "lever", re: new RegExp(`^https?://jobs\\.lever\\.co/(${SLUG})/?$`, "i") },
+  { vendor: "ashby", re: new RegExp(`^https?://jobs\\.ashbyhq\\.com/(${SLUG})/?$`, "i") },
 ];
 const MAX_JOBS_PER_BOARD = 200;
+
+export const name = "jobs";
 
 const VENDORS = {
   greenhouse: {
@@ -50,13 +51,18 @@ export async function fetchRecords(options, { http, sponsors = [] }) {
     const json = await http.getJson(vendor.url(parsed.slug)).catch(() => null);
     if (!json) continue;
     for (const job of vendor.jobs(json).slice(0, MAX_JOBS_PER_BOARD)) {
-      if (!job.title || !job.url) continue;
+      // Board JSON is third-party: only https links may become stored/rendered URLs.
+      if (!job.title || !isHttps(job.url)) continue;
       records.push(makeRecord("job", name, job.url, {
         title: job.title, company, sponsorName: company, location: job.location ?? null, postedAt: job.postedAt ?? null,
       }));
     }
   }
   return records;
+}
+
+function isHttps(url) {
+  try { return new URL(url).protocol === "https:"; } catch { return false; }
 }
 
 /**

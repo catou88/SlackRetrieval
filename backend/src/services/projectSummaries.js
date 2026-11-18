@@ -5,10 +5,12 @@
 // model entirely rather than let it invent something.
 import { listProjects, setProjectSummary } from "../data/intelStore.js";
 import { groundedness } from "../eval/groundedness.js";
+import { fenceSource, DATA_ONLY_RULE } from "../lib/promptSafety.js";
 
 const MAX_README_CHARS = 5000;
 const MAX_DESCRIPTION_CHARS = 3000;
 const MAX_TREE_PATHS = 80;
+const MIN_GROUNDEDNESS = 0.5; // below this the paragraphs are mostly unsupported by the sources
 const UNKNOWN_TEXT = "Unknown: no source material (description, README or code tree) was available.";
 
 /**
@@ -29,10 +31,12 @@ export async function summarizeProject(db, qwen, project) {
   const parsed = parseSummary(reply);
   const labels = sources.map((s) => s.label);
   const cited = labels.filter((l) => `${parsed.what} ${parsed.architecture}`.includes(`[${l}]`));
-  const summary = { what: parsed.what, architecture: parsed.architecture, sources: cited };
-  setProjectSummary(db, project.id, summary);
   const score = groundedness(`${parsed.what} ${parsed.architecture}`, sources.map((s) => s.text).join("\n")).score;
-  return { ...summary, groundedness: score };
+  // Spec: every summary cites its sources and says unknown rather than guess. Uncited or poorly grounded output is not stored as fact.
+  const trusted = cited.length > 0 && score >= MIN_GROUNDEDNESS;
+  const summary = trusted ? { what: parsed.what, architecture: parsed.architecture, sources: cited } : { what: UNKNOWN_TEXT, architecture: UNKNOWN_TEXT, sources: [] };
+  setProjectSummary(db, project.id, summary);
+  return { ...summary, groundedness: score, rejected: !trusted };
 }
 
 /**
@@ -84,9 +88,10 @@ function buildMessages(project, sources) {
     "You write factual project summaries for a hackathon database.",
     "Use ONLY the labelled sources. Cite a source after each claim like [S1].",
     "If the sources do not support something, write 'unknown' instead of guessing.",
+    DATA_ONLY_RULE,
     'Reply with JSON only: {"what": "<one paragraph: what the project is and does>", "architecture": "<one paragraph: how the code is structured: components, languages, frameworks, data flow>"}.',
   ].join(" ");
-  const body = sources.map((s) => `[${s.label}] ${s.title}\n${s.text}`).join("\n\n");
+  const body = sources.map((s) => `${s.title}:\n${fenceSource(s.label, s.text)}`).join("\n\n");
   return [{ role: "system", content: system }, { role: "user", content: `Project: ${project.title}\n\n${body}` }];
 }
 

@@ -7,13 +7,13 @@ const HISTORY_HEADER = "date,commit,suite,metric,value\n";
 
 /**
  * @param {Record<string, Record<string, number | string>>} suites  suite name -> metric -> value
- * @param {{ dir: string, date: string, commit?: string }} meta
+ * @param {{ dir: string, date: string, commit?: string, prefix?: string, historyName?: string }} meta
  * @returns {{ reportFile: string, historyFile: string }}
  */
-export function writeEvalReport(suites, { dir, date, commit = "unknown" }) {
+export function writeEvalReport(suites, { dir, date, commit = "unknown", prefix = "intel-eval", historyName = "history.csv" }) {
   fs.mkdirSync(dir, { recursive: true });
-  const reportFile = path.join(dir, `intel-eval-${date}.md`);
-  const historyFile = path.join(dir, "history.csv");
+  const reportFile = path.join(dir, `${prefix}-${date}.md`);
+  const historyFile = path.join(dir, historyName);
   fs.writeFileSync(reportFile, renderMarkdown(suites, date, commit));
   appendHistory(historyFile, suites, date, commit);
   return { reportFile, historyFile };

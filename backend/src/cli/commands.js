@@ -20,6 +20,9 @@ import { createIntelRag } from "../services/intelRag.js";
 import { embed } from "../clients/embedder.js";
 import { summarizeAll } from "../services/projectSummaries.js";
 import { summarizeAllContributions } from "../services/contributions.js";
+import { runRagEval } from "../eval/ragEval.js";
+import { hashEmbed } from "../eval/hashEmbedder.js";
+import { runBench } from "../eval/bench.js";
 import { runExtractionEval } from "../eval/extractionEval.js";
 import { writeEvalReport, metricDeltas } from "../eval/report.js";
 import { execFileSync } from "node:child_process";
@@ -27,6 +30,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const EVAL_GOLD_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "test", "fixtures", "eval", "devpost-gold.json");
+const EVAL_FIXTURE_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "test", "fixtures", "eval");
 const EVAL_REPORT_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "docs", "evals");
 
 const DEFAULT_SEARCH_RESULTS = 10;
@@ -55,6 +59,7 @@ export const COMMANDS = {
   export: exportCommand,
   "intel:ingest": intelIngestCommand,
   "intel:eval": intelEvalCommand,
+  "intel:bench": intelBenchCommand,
   "intel:summarize": intelSummarizeCommand,
   "intel:ask": intelAskCommand,
 };
@@ -70,6 +75,7 @@ export const USAGE = `Usage (npm run <command> -- …):
   intel:ingest [--adapter devpost] [--max-hackathons 5]   fetch hackathon winners/people/jobs into the intel tables
   intel:summarize [--force]            write what-it-is + architecture paragraphs with Qwen (needs QWEN_BASE_URL)
   intel:ask "which winners used LangGraph?"   answer from the hackathon database with Qwen, cited
+  intel:bench                          ingest/embedding/retrieval/ask latency -> docs/evals/bench-<date>.md
   intel:eval                           run extraction evals, write docs/evals/intel-eval-<date>.md + history.csv
   backup [--to D:\\]                    zip everything in data/
   ingest | index | db | categorize | pg | collection [name] | pg:search "query" [--in collection]`;
@@ -247,15 +253,29 @@ async function intelAskCommand({ text }) {
   }
 }
 
-function intelEvalCommand() {
+async function intelEvalCommand() {
   const date = new Date().toISOString().slice(0, 10);
-  const suites = { extraction: runExtractionEval(EVAL_GOLD_FILE) };
+  const qwen = await reachableQwen();
+  const rag = await runRagEval({ ...evalFixtures(), embed: hashEmbed, qwen });
+  const suites = { extraction: runExtractionEval(EVAL_GOLD_FILE), "rag(hash-embedder)": rag };
   const { reportFile, historyFile } = writeEvalReport(suites, { dir: EVAL_REPORT_DIR, date, commit: currentCommit() });
   console.log(`Wrote ${reportFile}`);
-  for (const [metric, value] of Object.entries(suites.extraction)) console.log(`  ${metric.padEnd(26)} ${value}`);
-  for (const d of metricDeltas(historyFile, "extraction")) {
-    if (d.current !== d.previous) console.log(`  delta ${d.metric}: ${d.previous} -> ${d.current}`);
+  for (const [suite, metrics] of Object.entries(suites)) {
+    for (const [metric, value] of Object.entries(metrics)) console.log(`  ${suite}.${metric.padEnd(26)} ${value}`);
+    for (const d of metricDeltas(historyFile, suite)) {
+      if (d.current !== d.previous) console.log(`  delta ${suite}.${d.metric}: ${d.previous} -> ${d.current}`);
+    }
   }
+}
+
+async function intelBenchCommand() {
+  const date = new Date().toISOString().slice(0, 10);
+  const real = await reachableQwen();
+  const qwen = real ?? { chat: async () => "Mock answer [1]" };
+  const bench = await runBench({ ...evalFixtures(), embed: hashEmbed, qwen, qwenIsReal: Boolean(real) });
+  const { reportFile } = writeEvalReport({ bench }, { dir: EVAL_REPORT_DIR, date, commit: currentCommit(), prefix: "bench", historyName: "bench-history.csv" });
+  console.log(`Wrote ${reportFile}`);
+  for (const [metric, value] of Object.entries(bench)) console.log(`  ${metric.padEnd(30)} ${value}`);
 }
 
 // ---------------------------------------------------------------- private helpers
@@ -269,6 +289,16 @@ function ingestIntelOptions(flags) {
   if (flags.file) options.file = flags.file;
   if (CONFIG.intel.githubToken) options.token = CONFIG.intel.githubToken;
   return options;
+}
+
+function evalFixtures() {
+  return { corpusFile: path.join(EVAL_FIXTURE_DIR, "rag-corpus.json"), questionsFile: path.join(EVAL_FIXTURE_DIR, "rag-questions.json") };
+}
+
+/** @returns {Promise<object | null>} a Qwen client when its endpoint answers, else null (answer evals are then skipped) */
+async function reachableQwen() {
+  const qwen = createQwenClient();
+  return (await qwen.isReachable()) ? qwen : null;
 }
 
 function currentCommit() {

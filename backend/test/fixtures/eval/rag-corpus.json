@@ -1,0 +1,209 @@
+{
+ "note": "SYNTHETIC corpus for RAG evals; replace with real winners after live ingest (L1).",
+ "projects": [
+  {
+   "slug": "robo-chef",
+   "title": "Robo Chef",
+   "hackathon": "Bay Agents Hack",
+   "prize": "Best Use of Qwen",
+   "sponsor": "Alibaba",
+   "builtWith": [
+    "python",
+    "fastapi",
+    "qwen"
+   ],
+   "tagline": "Robot that cooks dinner from fridge photos",
+   "members": [
+    "Member A1",
+    "Member A2"
+   ]
+  },
+  {
+   "slug": "math-tutor",
+   "title": "Math Tutor",
+   "hackathon": "Bay Agents Hack",
+   "prize": "Grand Prize",
+   "sponsor": null,
+   "builtWith": [
+    "typescript",
+    "whisper",
+    "react"
+   ],
+   "tagline": "Voice tutor for calculus homework",
+   "members": [
+    "Member B1",
+    "Member B2"
+   ]
+  },
+  {
+   "slug": "wildfire-watch",
+   "title": "Wildfire Watch",
+   "hackathon": "Climate Code SF",
+   "prize": "Best Geospatial Project",
+   "sponsor": "Mapbox",
+   "builtWith": [
+    "python",
+    "mapbox",
+    "pytorch"
+   ],
+   "tagline": "Satellite imagery model that flags early wildfire smoke",
+   "members": [
+    "Member C1",
+    "Member C2"
+   ]
+  },
+  {
+   "slug": "clinic-scribe",
+   "title": "Clinic Scribe",
+   "hackathon": "HealthTech Sprint SF",
+   "prize": "Best Healthcare Agent",
+   "sponsor": "Anthropic",
+   "builtWith": [
+    "nextjs",
+    "postgres",
+    "claude"
+   ],
+   "tagline": "Ambient scribe that drafts clinic visit notes",
+   "members": [
+    "Member D1",
+    "Member D2"
+   ]
+  },
+  {
+   "slug": "ledger-lens",
+   "title": "Ledger Lens",
+   "hackathon": "FinHack San Francisco",
+   "prize": "Best Fintech Hack",
+   "sponsor": "Stripe",
+   "builtWith": [
+    "go",
+    "stripe",
+    "sqlite"
+   ],
+   "tagline": "Explains personal spending anomalies in plain English",
+   "members": [
+    "Member E1",
+    "Member E2"
+   ]
+  },
+  {
+   "slug": "pocket-lawyer",
+   "title": "Pocket Lawyer",
+   "hackathon": "Bay Agents Hack",
+   "prize": "Best Agent Workflow",
+   "sponsor": "LangChain",
+   "builtWith": [
+    "python",
+    "langgraph",
+    "chroma"
+   ],
+   "tagline": "Agent that reviews rental contracts and flags risky clauses",
+   "members": [
+    "Member F1",
+    "Member F2"
+   ]
+  },
+  {
+   "slug": "drone-dispatch",
+   "title": "Drone Dispatch",
+   "hackathon": "Climate Code SF",
+   "prize": "Grand Prize",
+   "sponsor": null,
+   "builtWith": [
+    "rust",
+    "ros2",
+    "opencv"
+   ],
+   "tagline": "Autonomous drone routing for disaster supply drops",
+   "members": [
+    "Member G1",
+    "Member G2"
+   ]
+  },
+  {
+   "slug": "sign-bridge",
+   "title": "Sign Bridge",
+   "hackathon": "HealthTech Sprint SF",
+   "prize": "Best Accessibility Hack",
+   "sponsor": "Google",
+   "builtWith": [
+    "swift",
+    "coreml",
+    "mediapipe"
+   ],
+   "tagline": "Real-time sign language to text on an iPhone",
+   "members": [
+    "Member H1",
+    "Member H2"
+   ]
+  },
+  {
+   "slug": "merge-mentor",
+   "title": "Merge Mentor",
+   "hackathon": "DevTools Weekend SF",
+   "prize": "Best Developer Tool",
+   "sponsor": "GitHub",
+   "builtWith": [
+    "typescript",
+    "vscode",
+    "qwen"
+   ],
+   "tagline": "Code review bot that explains merge conflicts",
+   "members": [
+    "Member I1",
+    "Member I2"
+   ]
+  },
+  {
+   "slug": "query-coach",
+   "title": "Query Coach",
+   "hackathon": "DevTools Weekend SF",
+   "prize": "Best Use of Postgres",
+   "sponsor": "Supabase",
+   "builtWith": [
+    "sql",
+    "postgres",
+    "python"
+   ],
+   "tagline": "Teaches SQL by rewriting slow queries and showing plans",
+   "members": [
+    "Member J1",
+    "Member J2"
+   ]
+  },
+  {
+   "slug": "menu-lens",
+   "title": "Menu Lens",
+   "hackathon": "FinHack San Francisco",
+   "prize": "Grand Prize",
+   "sponsor": null,
+   "builtWith": [
+    "kotlin",
+    "ml-kit",
+    "firebase"
+   ],
+   "tagline": "Scans restaurant menus and splits the bill by item",
+   "members": [
+    "Member K1",
+    "Member K2"
+   ]
+  },
+  {
+   "slug": "lab-notebook",
+   "title": "Lab Notebook",
+   "hackathon": "Climate Code SF",
+   "prize": "Best Open Source Project",
+   "sponsor": "Hugging Face",
+   "builtWith": [
+    "python",
+    "jupyter",
+    "transformers"
+   ],
+   "tagline": "Turns lab notebooks into reproducible pipelines",
+   "members": [
+    "Member L1",
+    "Member L2"
+   ]
+  }
+ ]
+}

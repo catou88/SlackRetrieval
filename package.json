@@ -23,6 +23,7 @@
     "intel:ingest": "node backend/src/main.js intel:ingest",
     "intel:summarize": "node backend/src/main.js intel:summarize",
     "intel:ask": "node backend/src/main.js intel:ask",
+    "intel:bench": "node backend/src/main.js intel:bench",
     "intel:eval": "node backend/src/main.js intel:eval",
     "save-all": "node backend/src/main.js sync --all --full && node backend/src/main.js backup"
   },

@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import Database from "better-sqlite3";
 import { createIntelTables, upsertRecord } from "../../src/data/intelStore.js";
 import { createIntelRag, buildChunks } from "../../src/services/intelRag.js";
-import { fakeEmbed } from "../helpers/fakeEmbed.js";
+import { hashEmbed as fakeEmbed } from "../../src/eval/hashEmbedder.js";
 
 function seed() {
   const db = new Database(":memory:");

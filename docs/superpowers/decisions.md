@@ -14,3 +14,12 @@
 - Review round 1 (T1-T9): fixed SSRF/redirect bypass (https + public hosts only, manual redirects re-validated and rate-limited, 20s timeout), atomic cache writes, robots grouping + unreachable-robots => disallow-all, sponsor dedupe by name slug, COALESCE prize sponsors, member URL resolution, RECORD_KINDS moved to lib/records.js (layering), CLI flag validation + db close.
 - Not fixed (why): bare `node --test` kept (Node 22 requires it; frontend has no tests so no stray pickup); cache TTL deferred (cache is for dev re-runs; delete data/raw to refresh); prize pruning on re-run deferred (rare; is_winner only ratchets up); robots `*`/`$` patterns still skipped (documented).
 - Hackathon ordering uses year, then start_date (dates from Devpost are free text and not parsed yet).
+
+## Session 3
+- Jobs boards are never guessed from sponsor names: probing unknown slugs would hammer sites with 404s; boards come from manual import or options.
+- Contribution summaries require commit/project-text evidence: a self-written bio is not proof of contribution (spec: no fabrication).
+- Uncited RAG answers and summaries with groundedness < 0.5 are stored/returned as unknown: spec demands cited sources.
+- RAG index is in memory and built per process: corpus is small; avoids a second on-disk index format.
+- Eval uses a hash embedder offline (labelled "hash-embedder"); numbers are plumbing checks, not semantic quality.
+- RAG eval questions are template-generated from a SYNTHETIC corpus plus hand-written unanswerable ones; replace after live ingest (L1).
+- Source text is fenced in <source> tags with citation lookalikes stripped to blunt prompt injection from scraped pages.
