@@ -1,0 +1,12 @@
+{
+  "guild": {"id": "111", "name": "AI Builders"},
+  "channel": {"id": "222", "type": "GuildTextChat", "name": "job-board", "topic": "SYNTHETIC fixture in DiscordChatExporter format"},
+  "messageCount": 5,
+  "messages": [
+    {"id": "301", "type": "Default", "timestamp": "2026-03-02T18:00:00.000+00:00", "content": "**Acme AI** is hiring a Machine Learning Engineer Intern in San Francisco! Apply here: https://boards.greenhouse.io/acme/jobs/1", "author": {"id": "9", "name": "recruiter", "isBot": false}, "embeds": [], "attachments": []},
+    {"id": "302", "type": "Default", "timestamp": "2026-03-02T18:05:00.000+00:00", "content": "lol nice", "author": {"id": "8", "name": "bob", "isBot": false}, "embeds": []},
+    {"id": "303", "type": "Default", "timestamp": "2026-03-03T10:00:00.000+00:00", "content": "", "author": {"id": "7", "name": "jobbot", "isBot": true}, "embeds": [{"title": "Hooli is hiring: Software Engineer, Remote", "url": "https://hooli.example/careers/swe", "description": "Apply now"}]},
+    {"id": "304", "type": "ChannelPinnedMessage", "timestamp": "2026-03-03T11:00:00.000+00:00", "content": "", "author": {"id": "7", "name": "jobbot", "isBot": true}},
+    {"id": "305", "type": "Reply", "timestamp": "2026-03-04T11:00:00.000+00:00", "content": "I'm looking for an internship, open to work!", "author": {"id": "6", "name": "carol", "isBot": false}}
+  ]
+}

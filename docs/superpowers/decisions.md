@@ -26,3 +26,7 @@
 
 ## Session 4
 - Owner scope change (2026-11-17): dropped public ATS job-board scraping; jobs come only from Slack archive and Discord exports (no bot tokens, no live Discord). Removed adapters/jobs.js, its fixtures/tests; kept the jobs table and sponsor linking. Superseded the 'jobs boards never guessed' decision above. Legacy sponsors.jobs_board column left in old DBs, unused.
+- Jobs link to a sponsor only when a sponsor with the same name already exists; a company named in a chat post does not create a sponsor row (would pollute the sponsor list).
+- slackJobs skips DMs/group DMs and system subtypes (private, not shared postings); permalinks need SLACK_WORKSPACE_URL (validated as https://*.slack.com), otherwise null.
+- Job links are stored only when https (chat text is untrusted; frontend renders them as anchors).
+- jobs-gold.json fixture was written alongside the rules: P/R 1.0 is a regression guard, not independent evidence. Extend with real labelled messages after live use.
