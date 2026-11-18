@@ -48,3 +48,4 @@
 
 
 - Session 5: T17-T20 done (122 tests). Evals unchanged (no deltas). FOUND+FIXED intel/Slack `people` table collision (now hackathon_people). Remaining: L1 live Devpost (devpost.com blocked by egress proxy in session 1; retry first, record result), L2 live GitHub, F final report + Claude Doc + STATUS: ALL DONE. If L1/L2 stay blocked, mark them blocked (not faked) and proceed to F.
+LOCK: 03:25 UTC 2026-11-18
