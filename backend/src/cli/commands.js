@@ -11,6 +11,7 @@ import { semanticSearch } from "../services/search.js";
 import { answerQuestion, writeReconnectBrief } from "../services/rag.js";
 import { backupDataFolder } from "../services/backup.js";
 import { exportContactsCsv } from "../services/contactExport.js";
+import { CONFIG } from "../config.js";
 import { openDb } from "../data/db.js";
 import { createHttpFetcher } from "../clients/httpFetcher.js";
 import { ingestAll } from "../services/intelIngest.js";
@@ -195,8 +196,13 @@ function listPeopleCommand({ flags }) {
 async function intelIngestCommand({ flags }) {
   const db = openDb();
   const names = flags.adapter ? [flags.adapter] : [];
-  const options = flags["max-hackathons"] ? { maxHackathons: Number(flags["max-hackathons"]) } : {};
-  const summaries = await ingestAll(db, names, options, { http: createHttpFetcher() });
+  const options = ingestIntelOptions(flags);
+  let summaries;
+  try {
+    summaries = await ingestAll(db, names, options, { http: createHttpFetcher() });
+  } finally {
+    db.close();
+  }
   for (const s of summaries) {
     console.log(`${s.adapter}: fetched ${s.fetched}, stored ${s.stored}${s.error ? `, FAILED: ${s.error}` : ""}`);
     for (const problem of s.problems) console.log(`  - ${problem}`);
@@ -216,6 +222,18 @@ function intelEvalCommand() {
 }
 
 // ---------------------------------------------------------------- private helpers
+function ingestIntelOptions(flags) {
+  const options = {};
+  if (flags["max-hackathons"]) {
+    const max = Number(flags["max-hackathons"]);
+    if (!Number.isInteger(max) || max < 1) throw new Error("--max-hackathons must be a positive integer");
+    options.maxHackathons = max;
+  }
+  if (flags.file) options.file = flags.file;
+  if (CONFIG.intel.githubToken) options.token = CONFIG.intel.githubToken;
+  return options;
+}
+
 function currentCommit() {
   try {
     return execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim();

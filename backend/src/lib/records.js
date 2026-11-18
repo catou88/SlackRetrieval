@@ -1,7 +1,8 @@
 // Validates the normalized record every adapter must emit, so a buggy adapter
 // fails loudly at the boundary instead of corrupting the store.
 // Shape: { kind, source, sourceUrl, data }.
-import { RECORD_KINDS } from "../data/intelStore.js";
+
+export const RECORD_KINDS = ["hackathon", "project", "person", "contribution", "sponsor", "job"];
 
 const REQUIRED_DATA = {
   hackathon: ["name"],

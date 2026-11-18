@@ -79,3 +79,26 @@ test("config never allows a request interval under one second", () => {
   assert.equal(buildConfig({ INTEL_MIN_INTERVAL_MS: "10" }).intel.http.minIntervalMs, 1000);
   assert.equal(buildConfig({}).qwen.model, "qwen3:8b");
 });
+
+test("refuses non-https and private-host URLs", async () => {
+  const { fetcher, calls } = harness(() => ok("x"));
+  for (const url of ["http://a.test/", "https://localhost/x", "https://169.254.169.254/latest", "https://10.0.0.5/"]) {
+    await assert.rejects(fetcher.getText(url), /non-public or non-https/);
+  }
+  assert.equal(calls.length, 0);
+});
+
+test("follows redirects by hand and re-validates each hop", async () => {
+  const redirect = (to) => ({ ok: false, status: 302, headers: new Headers({ location: to }), text: async () => "" });
+  const good = harness((url) => (url.endsWith("/a") ? redirect("/b") : ok("final")));
+  assert.equal(await good.fetcher.getText("https://a.test/a"), "final");
+  assert.equal(good.calls[0].init.redirect, "manual");
+  const bad = harness(() => redirect("https://169.254.169.254/meta"));
+  await assert.rejects(bad.fetcher.getText("https://a.test/a"), /non-public/);
+});
+
+test("robots: grouped user-agents share rules; unreachable robots.txt blocks everything", async () => {
+  assert.deepEqual(parseRobotsDisallowed("User-agent: *\nUser-agent: Other\nDisallow: /x"), ["/x"]);
+  const { fetcher } = harness((url) => (url.endsWith("robots.txt") ? fail(503) : ok("page")), { respectRobots: true });
+  await assert.rejects(fetcher.getText("https://a.test/page"), /robots/);
+});

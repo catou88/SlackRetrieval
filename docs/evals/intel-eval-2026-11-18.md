@@ -1,6 +1,6 @@
 # Intel eval 2026-11-18
 
-Commit: a2736e6
+Commit: 7cc2823
 
 ## extraction
 

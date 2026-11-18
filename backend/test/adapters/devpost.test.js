@@ -70,3 +70,8 @@ test("fetchRecords produces valid records from a fake fetcher", async () => {
   assert.equal(kinds.filter((k) => k === "project").length, 2);
   assert.deepEqual(records[0].data.sponsors, [{ name: "Acme" }]);
 });
+
+test("parseProject drops members without a usable profile URL and resolves relative ones", () => {
+  const html = '<div class="software-team-member"><a class="user-profile-link" href="/rel-user">Rel</a></div><div class="software-team-member"><a class="user-profile-link">NoHref</a></div>';
+  assert.deepEqual(parseProject(html, "https://devpost.com/software/x").members, [{ name: "Rel", url: "https://devpost.com/rel-user" }]);
+});

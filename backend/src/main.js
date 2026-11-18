@@ -10,7 +10,7 @@ import { COMMANDS, USAGE } from "./cli/commands.js";
 
 // Boolean flags never swallow the next word, so `ask --no-cache "q"` works.
 const FLAG_OPTIONS = {
-  person: { type: "string" }, goal: { type: "string" }, k: { type: "string" }, to: { type: "string" }, in: { type: "string" }, adapter: { type: "string" }, "max-hackathons": { type: "string" },
+  person: { type: "string" }, goal: { type: "string" }, k: { type: "string" }, to: { type: "string" }, in: { type: "string" }, adapter: { type: "string" }, file: { type: "string" }, "max-hackathons": { type: "string" },
   mentors: { type: "boolean" }, linkedin: { type: "boolean" }, sources: { type: "boolean" },
   all: { type: "boolean" }, full: { type: "boolean" }, "no-files": { type: "boolean" },
   fresh: { type: "boolean" }, "no-cache": { type: "boolean" },

@@ -3,7 +3,6 @@
 // adapter never duplicates), and the read queries the services/HTTP layer use.
 // Normalized record shape: { kind, source, sourceUrl, data } (see adapters/).
 
-export const RECORD_KINDS = ["hackathon", "project", "person", "contribution", "sponsor", "job"];
 
 const INTEL_DDL = `
   CREATE TABLE IF NOT EXISTS hackathons (
@@ -112,7 +111,7 @@ export function getProject(db, id) {
 
 /** @returns {object[]} all hackathons, newest first */
 export function listHackathons(db) {
-  return db.prepare("SELECT * FROM hackathons ORDER BY start_date DESC, id").all();
+  return db.prepare("SELECT * FROM hackathons ORDER BY year DESC, start_date DESC, id").all();
 }
 
 /** @returns {object[]} all sponsors with the number of prizes they backed */
@@ -181,7 +180,7 @@ function upsertProject(db, { source, sourceUrl, data }) {
   for (const prize of prizes) {
     const sponsorId = prize.sponsor ? ensureSponsor(db, typeof prize.sponsor === "string" ? { name: prize.sponsor } : prize.sponsor) : null;
     db.prepare(`INSERT INTO project_prizes (project_id, prize, sponsor_id, is_winner) VALUES (?, ?, ?, ?)
-      ON CONFLICT(project_id, prize) DO UPDATE SET sponsor_id=excluded.sponsor_id, is_winner=excluded.is_winner`)
+      ON CONFLICT(project_id, prize) DO UPDATE SET sponsor_id=COALESCE(excluded.sponsor_id, project_prizes.sponsor_id), is_winner=excluded.is_winner`)
       .run(id, prize.name, sponsorId, prize.isWinner === false ? 0 : 1);
   }
   for (const member of data.members ?? []) {
@@ -214,7 +213,8 @@ function upsertContribution(db, { source, data }) {
 }
 
 function upsertSponsor(db, { sourceUrl, data }) {
-  return ensureSponsor(db, { name: data.name, url: sourceUrl, website: data.website, jobsBoard: data.jobsBoard });
+  // Keyed by name slug (not sourceUrl) so the same company from different adapters is one row.
+  return ensureSponsor(db, { name: data.name, website: data.website ?? (sourceUrl.startsWith("http") ? sourceUrl : null), jobsBoard: data.jobsBoard });
 }
 
 function upsertJob(db, { source, sourceUrl, data }) {

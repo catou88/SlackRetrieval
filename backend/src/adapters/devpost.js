@@ -73,7 +73,7 @@ export function parseGallery(html, baseUrl) {
  * @param {string} html  a Devpost project page
  * @returns {object} project data (without hackathon linkage)
  */
-export function parseProject(html) {
+export function parseProject(html, baseUrl = "https://devpost.com/") {
   const $ = cheerio.load(html);
   const links = $("nav.app-links a, #app-links a").map((_, a) => $(a).attr("href")).get();
   return {
@@ -87,7 +87,8 @@ export function parseProject(html) {
       name: $(li).clone().find(".label").remove().end().text().trim(),
       isWinner: $(li).find(".winner").length > 0,
     })).get().filter((p) => p.name),
-    members: $(".software-team-member a.user-profile-link").map((_, a) => ({ name: $(a).text().trim(), url: $(a).attr("href") })).get(),
+    members: $(".software-team-member a.user-profile-link").map((_, a) => ({ name: $(a).text().trim(), url: absoluteUrl($(a).attr("href"), baseUrl) }))
+      .get().filter((m) => m.name && m.url),
   };
 }
 
@@ -135,13 +136,22 @@ function yearsIn(dateText = "") {
   return [...dateText.matchAll(/\b(20\d{2})\b/g)].map((m) => Number(m[1]));
 }
 
+/** @returns {string | null} resolved https URL, or null when absent/invalid (a member without one is dropped) */
+function absoluteUrl(href, baseUrl) {
+  try {
+    return href ? new URL(href, baseUrl).href : null;
+  } catch {
+    return null;
+  }
+}
+
 function sponsorsOf(prizeList) {
   const names = [...new Set(prizeList.map((p) => p.sponsor).filter(Boolean))];
   return names.map((sponsorName) => ({ name: sponsorName }));
 }
 
 async function projectRecords(item, hackathon, prizeList, http) {
-  const project = parseProject(await http.getText(item.url));
+  const project = parseProject(await http.getText(item.url), item.url);
   const members = [];
   const personRecords = [];
   for (const member of project.members) {
