@@ -29,7 +29,7 @@ const INTEL_DDL = `
     PRIMARY KEY (project_id, person_id)
   );
   CREATE TABLE IF NOT EXISTS sponsors (
-    id INTEGER PRIMARY KEY, source_url TEXT UNIQUE NOT NULL, name TEXT NOT NULL, website TEXT, jobs_board TEXT
+    id INTEGER PRIMARY KEY, source_url TEXT UNIQUE NOT NULL, name TEXT NOT NULL, website TEXT
   );
   CREATE TABLE IF NOT EXISTS hackathon_sponsors (
     hackathon_id INTEGER NOT NULL REFERENCES hackathons(id), sponsor_id INTEGER NOT NULL REFERENCES sponsors(id),
@@ -223,7 +223,7 @@ function upsertContribution(db, { source, data }) {
 
 function upsertSponsor(db, { sourceUrl, data }) {
   // Keyed by name slug (not sourceUrl) so the same company from different adapters is one row.
-  return ensureSponsor(db, { name: data.name, website: data.website ?? (sourceUrl.startsWith("http") ? sourceUrl : null), jobsBoard: data.jobsBoard });
+  return ensureSponsor(db, { name: data.name, website: data.website ?? (sourceUrl.startsWith("http") ? sourceUrl : null) });
 }
 
 function upsertJob(db, { source, sourceUrl, data }) {
@@ -238,11 +238,10 @@ function upsertJob(db, { source, sourceUrl, data }) {
 }
 
 /** Sponsors are keyed by a stable URL; without one, a slug of the name, so "Acme" dedupes across adapters. */
-function ensureSponsor(db, { name, url, website, jobsBoard }) {
+function ensureSponsor(db, { name, url, website }) {
   const key = url ?? `sponsor:${name.trim().toLowerCase().replace(/\s+/g, "-")}`;
-  db.prepare(`INSERT INTO sponsors (source_url, name, website, jobs_board) VALUES (?, ?, ?, ?)
-    ON CONFLICT(source_url) DO UPDATE SET website=COALESCE(excluded.website, sponsors.website),
-      jobs_board=COALESCE(excluded.jobs_board, sponsors.jobs_board)`).run(key, name, website ?? null, jobsBoard ?? null);
+  db.prepare(`INSERT INTO sponsors (source_url, name, website) VALUES (?, ?, ?)
+    ON CONFLICT(source_url) DO UPDATE SET website=COALESCE(excluded.website, sponsors.website)`).run(key, name, website ?? null);
   return idOf(db, "sponsors", key);
 }
 

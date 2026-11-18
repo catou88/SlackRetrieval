@@ -18,7 +18,7 @@ const MAX_REPORTED_PROBLEMS = 20;
 export async function ingestFromAdapter(db, adapterName, options = {}, deps = {}) {
   createIntelTables(db);
   const adapter = getAdapter(adapterName);
-  // Adapters that enrich existing rows (github, jobs) read them from `projects`/`sponsors`.
+  // Adapters that enrich existing rows (github, huggingface) read them from `projects`/`sponsors`.
   const records = await adapter.fetchRecords(options, { projects: listProjects(db), sponsors: listSponsors(db), ...deps });
   const problems = [];
   let stored = 0;

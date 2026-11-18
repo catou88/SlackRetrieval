@@ -13,7 +13,10 @@ Each task is <= ~45 min, TDD, fixtures only (no live network in tests). Tasks T1
 | T7 | intelIngest service: adapters -> validate -> store; CLI intel:ingest --adapter | services/intelIngest.js, cli | ingest test |
 | T8 | GitHub adapter (repo meta, README, languages, tree, contributors/commit stats), fixtures | adapters/github.js | fixtures |
 | T9 | Hugging Face adapter + manualImport (JSON/CSV) + slack adapter wrapper | adapters/*.js | fixtures |
-| T10 | Jobs adapter (Greenhouse/Lever/Ashby public JSON) + sponsor->job linking | adapters/jobs.js | fixtures |
+| T10 | (SUPERSEDED 2026-11-17: ATS scraping dropped; adapter removed) | - | - |
+| J1 | jobPostDetector (rules) + labeled job-post eval | services/jobPostDetector.js, fixtures/eval/jobs-gold.json | precision/recall |
+| J2 | slackJobs adapter over Slack archive (permalink, channel) + jobs columns | adapters/slackJobs.js | fixtures |
+| J3 | discord adapter (DiscordChatExporter JSON in data/discord/) | adapters/discord.js | fixtures |
 | T11 | clients/qwen.js OpenAI-compatible chat client (mockable) | clients/qwen.js | mock server |
 | T12 | projectSummaries service (what-it-is + architecture paragraphs, cited) + groundedness metric | services/projectSummaries.js | mock Qwen |
 | T13 | contributions service (2-3 sentences/member, evidence, unknown if thin) | services/contributions.js | mock Qwen |
@@ -25,5 +28,5 @@ Each task is <= ~45 min, TDD, fixtures only (no live network in tests). Tasks T1
 | T19 | Frontend: Winners + Project detail pages | frontend/src/pages | manual/a11y review |
 | T20 | Frontend: Teammates, Jobs, Ask, Practice pages; design critique + a11y audit |
 | L1 | Live scrape Devpost (SF 2026) politely; record blockers; save fixtures |
-| L2 | Live GitHub/jobs enrichment |
+| L2 | Live GitHub enrichment |
 | F  | Final report, Claude Doc, STATUS: ALL DONE |

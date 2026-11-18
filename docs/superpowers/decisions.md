@@ -23,3 +23,6 @@
 - Eval uses a hash embedder offline (labelled "hash-embedder"); numbers are plumbing checks, not semantic quality.
 - RAG eval questions are template-generated from a SYNTHETIC corpus plus hand-written unanswerable ones; replace after live ingest (L1).
 - Source text is fenced in <source> tags with citation lookalikes stripped to blunt prompt injection from scraped pages.
+
+## Session 4
+- Owner scope change (2026-11-17): dropped public ATS job-board scraping; jobs come only from Slack archive and Discord exports (no bot tokens, no live Discord). Removed adapters/jobs.js, its fixtures/tests; kept the jobs table and sponsor linking. Superseded the 'jobs boards never guessed' decision above. Legacy sponsors.jobs_board column left in old DBs, unused.

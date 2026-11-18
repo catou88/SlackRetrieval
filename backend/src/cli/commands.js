@@ -72,7 +72,7 @@ export const USAGE = `Usage (npm run <command> -- …):
   brief "Jane Doe" [--goal "ask about internships"] [--fresh]
   export                               contacts.csv for spreadsheets
   serve [--no-cache]                   local website at http://localhost:3000 (or CACHE=0)
-  intel:ingest [--adapter devpost] [--max-hackathons 5]   fetch hackathon winners/people/jobs into the intel tables
+  intel:ingest [--adapter devpost] [--max-hackathons 5]   fetch hackathon winners/people (and Slack/Discord job posts) into the intel tables
   intel:summarize [--force]            write what-it-is + architecture paragraphs with Qwen (needs QWEN_BASE_URL)
   intel:ask "which winners used LangGraph?"   answer from the hackathon database with Qwen, cited
   intel:bench                          ingest/embedding/retrieval/ask latency -> docs/evals/bench-<date>.md

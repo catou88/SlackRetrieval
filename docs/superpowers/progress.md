@@ -12,7 +12,10 @@ LOCK: 2026-11-18T02:06:02Z
 - [x] T7 intelIngest + CLI (intel:ingest --adapter --max-hackathons --file; ingestAll isolates failures)
 - [x] T8 GitHub adapter (README/tree/languages/contributors -> projects.github_stats; token via GITHUB_TOKEN)
 - [x] T9 HF + manualImport + slack adapters (hf_info column; CSV/JSON import)
-- [x] T10 jobs adapter: Greenhouse/Lever/Ashby, boards only from sponsors.jobs_board or options.boards (never guessed), https-only links, strict slugs
+- [x] T10 (SUPERSEDED: ATS jobs adapter built then REMOVED per owner scope change 2026-11-17)
+- [ ] J1 jobPostDetector (rules) + labeled job-post eval
+- [ ] J2 slackJobs adapter + jobs table columns (channel, permalink, link)
+- [ ] J3 discord adapter (DiscordChatExporter JSON, data/discord/)
 - [x] T11 qwen client (OpenAI-compatible, strips <think>, throws on truncation)
 - [x] T12 projectSummaries + groundedness (lexical proxy); uncited/<0.5 grounded output stored as Unknown; intel:summarize
 - [x] T13 contributions: model only called with GitHub commit share or project-text mention; bio/skills alone => Unknown quoting the bio
@@ -24,7 +27,7 @@ LOCK: 2026-11-18T02:06:02Z
 - [ ] T19 frontend Winners/Detail
 - [ ] T20 frontend remaining pages + design/a11y review
 - [ ] L1 live Devpost scrape
-- [ ] L2 live GitHub/jobs
+- [ ] L2 live GitHub enrichment
 - [ ] F final report + Claude Doc
 
 ## Notes
@@ -40,3 +43,5 @@ LOCK: 2026-11-18T02:06:02Z
 - Bench (hash embedder, mock Qwen): ingest ~19.9k rec/s, retrieval p50 0.02ms, p95 0.22ms.
 - Deferred from review (low priority): summary re-generation on source change (hash), QWEN api key header, citation source URLs in ask results, per-project README chunk URLs, non-zero exit on summarize failures.
 - Next up: T17 HTTP routes (/api/intel/*, add intelRag instance + ask), T18 practice + teammateFinder, T19/T20 frontend. See backend/src/http/routes for existing route style.
+
+- Session 4: SCOPE CHANGE applied (ATS scraping dropped; jobs only from Slack/Discord exports). Removed adapters/jobs.js + tests + fixtures; sponsors.jobs_board no longer written. Tests 101 pass.
