@@ -11,6 +11,17 @@ import { semanticSearch } from "../services/search.js";
 import { answerQuestion, writeReconnectBrief } from "../services/rag.js";
 import { backupDataFolder } from "../services/backup.js";
 import { exportContactsCsv } from "../services/contactExport.js";
+import { openDb } from "../data/db.js";
+import { createHttpFetcher } from "../clients/httpFetcher.js";
+import { ingestAll } from "../services/intelIngest.js";
+import { runExtractionEval } from "../eval/extractionEval.js";
+import { writeEvalReport, metricDeltas } from "../eval/report.js";
+import { execFileSync } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const EVAL_GOLD_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "test", "fixtures", "eval", "devpost-gold.json");
+const EVAL_REPORT_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "docs", "evals");
 
 const DEFAULT_SEARCH_RESULTS = 10;
 const DEFAULT_PG_SEARCH_RESULTS = 15;
@@ -36,6 +47,8 @@ export const COMMANDS = {
   brief: briefCommand,
   people: listPeopleCommand,
   export: exportCommand,
+  "intel:ingest": intelIngestCommand,
+  "intel:eval": intelEvalCommand,
 };
 
 export const USAGE = `Usage (npm run <command> -- …):
@@ -46,6 +59,8 @@ export const USAGE = `Usage (npm run <command> -- …):
   brief "Jane Doe" [--goal "ask about internships"] [--fresh]
   export                               contacts.csv for spreadsheets
   serve [--no-cache]                   local website at http://localhost:3000 (or CACHE=0)
+  intel:ingest [--adapter devpost] [--max-hackathons 5]   fetch hackathon winners/people/jobs into the intel tables
+  intel:eval                           run extraction evals, write docs/evals/intel-eval-<date>.md + history.csv
   backup [--to D:\\]                    zip everything in data/
   ingest | index | db | categorize | pg | collection [name] | pg:search "query" [--in collection]`;
 
@@ -176,7 +191,39 @@ function listPeopleCommand({ flags }) {
   console.log(`\n${people.length} people`);
 }
 
+// ---------------------------------------------------------------- hackathon intel
+async function intelIngestCommand({ flags }) {
+  const db = openDb();
+  const names = flags.adapter ? [flags.adapter] : [];
+  const options = flags["max-hackathons"] ? { maxHackathons: Number(flags["max-hackathons"]) } : {};
+  const summaries = await ingestAll(db, names, options, { http: createHttpFetcher() });
+  for (const s of summaries) {
+    console.log(`${s.adapter}: fetched ${s.fetched}, stored ${s.stored}${s.error ? `, FAILED: ${s.error}` : ""}`);
+    for (const problem of s.problems) console.log(`  - ${problem}`);
+  }
+  console.log(summaries.at(-1)?.counts ?? {});
+}
+
+function intelEvalCommand() {
+  const date = new Date().toISOString().slice(0, 10);
+  const suites = { extraction: runExtractionEval(EVAL_GOLD_FILE) };
+  const { reportFile, historyFile } = writeEvalReport(suites, { dir: EVAL_REPORT_DIR, date, commit: currentCommit() });
+  console.log(`Wrote ${reportFile}`);
+  for (const [metric, value] of Object.entries(suites.extraction)) console.log(`  ${metric.padEnd(26)} ${value}`);
+  for (const d of metricDeltas(historyFile, "extraction")) {
+    if (d.current !== d.previous) console.log(`  delta ${d.metric}: ${d.previous} -> ${d.current}`);
+  }
+}
+
 // ---------------------------------------------------------------- private helpers
+function currentCommit() {
+  try {
+    return execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim();
+  } catch {
+    return "unknown";
+  }
+}
+
 function ingestOptions(flags) {
   return { onlyMember: !flags.all, full: !!flags.full, downloadFiles: !flags["no-files"] };
 }

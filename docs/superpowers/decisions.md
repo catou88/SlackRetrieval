@@ -6,3 +6,6 @@
 - robots.txt parser is minimal (wildcard agent, prefix Disallow only; pattern rules skipped): fewer deps; skipped rules mean we may fetch a path a pattern would block, so adapters must only hit normal public pages.
 - intelStore lives in the existing slack.db (same connection, CREATE IF NOT EXISTS) rather than a second file: one backup unit, one vector index location. Tables are not dropped by the Slack rebuild.
 - Cross-record references use source URLs and create stub rows when the target hasn't arrived, so adapters may emit in any order. Sponsors dedupe by slug of name when no URL is given.
+- Eval gold labels are hand-written against SYNTHETIC fixtures, so extraction metrics are 1.0 by construction; they guard against parser regressions only. Real-capture labels come with task L1 (devpost.com was blocked by the egress proxy).
+- ingestAll isolates adapter failures (reported in the summary, not thrown): one blocked site must not stop other sources.
+- Eval history rows are appended per run, one CSV row per metric, with the short commit hash, so deltas can be diffed across sessions.

@@ -1,0 +1,31 @@
+{
+  "note": "Hand-labelled against the SYNTHETIC fixtures in ../devpost. Re-label against real captures in task L1.",
+  "fixtureDir": "devpost",
+  "hackathonListing": {
+    "file": "hackathons.json",
+    "labels": {
+      "https://bayagents.example.test/": true,
+      "https://nycbuild.example.test/": false,
+      "https://sfold.example.test/": false,
+      "https://jam.example.test/": false,
+      "https://marathon.example.test/": true
+    }
+  },
+  "gallery": {
+    "file": "gallery.html",
+    "baseUrl": "https://bay.example.test/",
+    "winners": ["https://devpost.com/software/robo-chef", "https://bay.example.test/software/relative-one"]
+  },
+  "project": {
+    "file": "project.html",
+    "members": ["Alice Dev", "Bob Builder"],
+    "prizes": ["Best Use of Acme API", "Grand Prize"]
+  },
+  "prizeSponsors": {
+    "file": "prizes.html",
+    "labels": [
+      { "prize": "Best Use of Acme API", "sponsor": "Acme" },
+      { "prize": "Grand Prize", "sponsor": null }
+    ]
+  }
+}

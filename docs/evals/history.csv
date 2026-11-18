@@ -1,0 +1,6 @@
+date,commit,suite,metric,value
+2026-11-18,a2736e6,extraction,winner.precision,1
+2026-11-18,a2736e6,extraction,winner.recall,1
+2026-11-18,a2736e6,extraction,members.f1,1
+2026-11-18,a2736e6,extraction,sponsor_link.accuracy,1
+2026-11-18,a2736e6,extraction,sf2026_filter.accuracy,1

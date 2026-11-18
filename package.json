@@ -20,6 +20,8 @@
     "collection": "node backend/src/main.js collection",
     "pg:search": "node backend/src/main.js pg:search",
     "categorize": "node backend/src/main.js categorize",
+    "intel:ingest": "node backend/src/main.js intel:ingest",
+    "intel:eval": "node backend/src/main.js intel:eval",
     "save-all": "node backend/src/main.js sync --all --full && node backend/src/main.js backup"
   },
   "keywords": [],
