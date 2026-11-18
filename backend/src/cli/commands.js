@@ -15,6 +15,8 @@ import { CONFIG } from "../config.js";
 import { openDb } from "../data/db.js";
 import { createHttpFetcher } from "../clients/httpFetcher.js";
 import { ingestAll } from "../services/intelIngest.js";
+import { createQwenClient } from "../clients/qwen.js";
+import { summarizeAll } from "../services/projectSummaries.js";
 import { runExtractionEval } from "../eval/extractionEval.js";
 import { writeEvalReport, metricDeltas } from "../eval/report.js";
 import { execFileSync } from "node:child_process";
@@ -50,6 +52,7 @@ export const COMMANDS = {
   export: exportCommand,
   "intel:ingest": intelIngestCommand,
   "intel:eval": intelEvalCommand,
+  "intel:summarize": intelSummarizeCommand,
 };
 
 export const USAGE = `Usage (npm run <command> -- …):
@@ -61,6 +64,7 @@ export const USAGE = `Usage (npm run <command> -- …):
   export                               contacts.csv for spreadsheets
   serve [--no-cache]                   local website at http://localhost:3000 (or CACHE=0)
   intel:ingest [--adapter devpost] [--max-hackathons 5]   fetch hackathon winners/people/jobs into the intel tables
+  intel:summarize [--force]            write what-it-is + architecture paragraphs with Qwen (needs QWEN_BASE_URL)
   intel:eval                           run extraction evals, write docs/evals/intel-eval-<date>.md + history.csv
   backup [--to D:\\]                    zip everything in data/
   ingest | index | db | categorize | pg | collection [name] | pg:search "query" [--in collection]`;
@@ -208,6 +212,19 @@ async function intelIngestCommand({ flags }) {
     for (const problem of s.problems) console.log(`  - ${problem}`);
   }
   console.log(summaries.at(-1)?.counts ?? {});
+}
+
+async function intelSummarizeCommand({ flags }) {
+  const qwen = createQwenClient();
+  if (!(await qwen.isReachable())) throw new Error(`No Qwen endpoint at ${CONFIG.qwen.baseUrl}. Start Ollama (ollama run ${CONFIG.qwen.model}) or set QWEN_BASE_URL.`);
+  const db = openDb();
+  try {
+    const result = await summarizeAll(db, qwen, { force: !!flags.force });
+    console.log(`summarized ${result.done}, skipped ${result.skipped}, failed ${result.failed.length}`);
+    for (const f of result.failed) console.log(`  - project ${f.id}: ${f.error}`);
+  } finally {
+    db.close();
+  }
 }
 
 function intelEvalCommand() {

@@ -127,6 +127,15 @@ export function listJobs(db, { sponsor } = {}) {
   return sponsor ? rows.filter((j) => j.sponsor_name?.toLowerCase() === sponsor.toLowerCase()) : rows;
 }
 
+/**
+ * Store the generated paragraphs and the source labels they cite.
+ * @param {{ what: string, architecture: string, sources: string[] }} summary
+ */
+export function setProjectSummary(db, projectId, { what, architecture, sources }) {
+  db.prepare("UPDATE projects SET summary_what = ?, summary_architecture = ?, summary_sources = ? WHERE id = ?")
+    .run(what, architecture, JSON.stringify(sources), projectId);
+}
+
 /** @returns {object[]} people with the projects they worked on */
 export function listPeople(db) {
   return db.prepare("SELECT * FROM people ORDER BY name").all().map((row) => ({
@@ -255,6 +264,7 @@ function withProjectRelations(db, row) {
     file_tree: parseJson(row.file_tree, null),
     github_stats: parseJson(row.github_stats, null),
     hf_info: parseJson(row.hf_info, null),
+    summary_sources: parseJson(row.summary_sources, []),
     prizes: db.prepare(`SELECT pp.prize, pp.is_winner, s.name AS sponsor FROM project_prizes pp
                         LEFT JOIN sponsors s ON s.id = pp.sponsor_id WHERE pp.project_id = ?`).all(row.id),
     members: db.prepare(`SELECT pe.id, pe.name, pe.devpost_url, pe.github_url, pe.linkedin_url FROM project_members m
@@ -265,7 +275,7 @@ function withProjectRelations(db, row) {
 // Databases created before a column existed get it added (CREATE IF NOT EXISTS won't).
 function addMissingColumns(db) {
   const columns = db.prepare("PRAGMA table_info(projects)").all().map((c) => c.name);
-  for (const column of ["github_stats", "hf_info"]) {
+  for (const column of ["github_stats", "hf_info", "summary_what", "summary_architecture", "summary_sources"]) {
     if (!columns.includes(column)) db.exec(`ALTER TABLE projects ADD COLUMN ${column} TEXT`);
   }
 }
