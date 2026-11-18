@@ -32,3 +32,4 @@
 - Gotcha: a bare `cat > file` with no heredoc hangs the shell; always use heredocs.
 - Next up: T6 eval harness (extraction evals on labeled fixtures + intel:eval + history.csv), then T7 intelIngest + CLI.
 - Session 1 skipped the parallel critic/judge round (time); T1-T5 should get a code-review + architecture pass at the start of session 2 before T6.
+LOCK: 2026-11-18T00:06Z
