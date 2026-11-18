@@ -1,6 +1,6 @@
 # Intel eval 2026-11-18
 
-Commit: f430e88
+Commit: 2348e16
 
 ## extraction
 
@@ -18,8 +18,8 @@ Commit: f430e88
 |---|---|
 | job_detect.precision | 1 |
 | job_detect.recall | 1 |
-| job_company.accuracy | 0.875 |
-| job_location.accuracy | 0.875 |
+| job_company.accuracy | 0.9 |
+| job_location.accuracy | 0.9 |
 | job_link.accuracy | 1 |
 
 ## rag(hash-embedder)

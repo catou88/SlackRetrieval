@@ -249,7 +249,9 @@ function upsertJob(db, { source, sourceUrl, data }) {
 }
 
 function existingSponsorId(db, name) {
-  return name ? idOf(db, "sponsors", sponsorKey(name)) : null;
+  if (!name) return null;
+  const row = db.prepare("SELECT id FROM sponsors WHERE LOWER(name) = ?").get(name.trim().toLowerCase().replace(/,?\s+(inc|llc|ltd|corp)\.?$/, ""));
+  return row?.id ?? null;
 }
 
 function sponsorKey(name) {

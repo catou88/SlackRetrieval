@@ -34,3 +34,11 @@ test("invalid exports are skipped with a warning, not fatal", async () => {
 test("missing folder yields no records", async () => {
   assert.deepEqual(await discord.fetchRecords({ discordDir: "/nonexistent/discord-x" }, { warn: () => {} }), []);
 });
+
+test("direct-message exports are never read", async () => {
+  const dm = JSON.stringify({ guild: { id: "0", name: "Direct Messages" }, channel: { id: "5", type: "DirectTextChat", name: "bob" },
+    messages: [{ id: "1", type: "Default", timestamp: "2026-01-01T00:00:00+00:00", content: "Initech is hiring a Founding Engineer, apply now https://jobs.ashbyhq.com/initech/x" }] });
+  const warnings = [];
+  assert.deepEqual(await discord.fetchRecords({}, deps({ readFile: () => dm, warn: (m) => warnings.push(m) })), []);
+  assert.match(warnings[0], /direct-message/);
+});

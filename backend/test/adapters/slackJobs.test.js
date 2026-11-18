@@ -43,3 +43,10 @@ test("stored jobs are filterable by source, channel and company and link sponsor
   assert.equal(listJobs(db, { company: "acme ai" })[0].sponsor_name, "Acme AI");
   assert.equal(listJobs(db, { source: "discord" }).length, 0);
 });
+
+test("bot postings are kept; a link label cannot spoof the stored href", async () => {
+  const bot = [{ channel_id: "C9", channel: "#jobs", channel_type: "channel", subtype: "bot_message", ts: "1.1", date: "2026-01-01T00:00:00.000Z",
+    text: "Hooli is hiring a Software Engineer, apply <https://evil.test/x|https://good.test/jobs/1>" }];
+  const [r] = await slackJobs.fetchRecords({}, { readMessages: () => bot });
+  assert.equal(r.data.link, "https://evil.test/x");
+});

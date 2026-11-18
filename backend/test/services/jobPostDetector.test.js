@@ -22,3 +22,9 @@ test("job seekers and chatter are not postings", () => {
 test("stripChatMarkup unwraps links, mentions and emphasis", () => {
   assert.equal(stripChatMarkup("<@U1> *hi* <https://a.test|site> <https://b.test>"), "hi site https://a.test https://b.test");
 });
+
+test("recruiter saying 'I'm looking for' still counts; hiring questions and team-formation do not", () => {
+  assert.equal(detectJobPost({ text: "I'm looking for a backend engineer to join our startup, we're hiring! https://s.example/careers" }).isJob, true);
+  assert.equal(detectJobPost({ text: "Anyone know if Stripe is hiring interns? Looking for a referral" }).isJob, false);
+  assert.equal(detectJobPost({ text: "Apply now for the hackathon, we still need one designer on the team, join our team!" }).isJob, false);
+});

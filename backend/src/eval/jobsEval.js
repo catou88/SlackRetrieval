@@ -23,6 +23,8 @@ export function runJobsEval(goldFile) {
   };
 }
 
+/** Accuracy of one extracted field over true positives; 0 (not a vacuous 1) when nothing was detected. */
 function fieldAccuracy(positives, field) {
+  if (!positives.length) return 0;
   return accuracy(positives.map((r) => (r.got[field] ?? null) === (r.gold[field] ?? null)));
 }

@@ -1,5 +1,4 @@
 # Progress
-LOCK: 2026-11-18T02:06:02Z
 
 
 ## Tasks (plan: docs/superpowers/plans/2026-11-17-hackathon-intel.md)
@@ -13,9 +12,9 @@ LOCK: 2026-11-18T02:06:02Z
 - [x] T8 GitHub adapter (README/tree/languages/contributors -> projects.github_stats; token via GITHUB_TOKEN)
 - [x] T9 HF + manualImport + slack adapters (hf_info column; CSV/JSON import)
 - [x] T10 (SUPERSEDED: ATS jobs adapter built then REMOVED per owner scope change 2026-11-17)
-- [ ] J1 jobPostDetector (rules) + labeled job-post eval
-- [ ] J2 slackJobs adapter + jobs table columns (channel, permalink, link)
-- [ ] J3 discord adapter (DiscordChatExporter JSON, data/discord/)
+- [x] J1 jobPostDetector (rules) + labeled job-post eval (20 SYNTHETIC msgs: P 1.0 R 1.0, company/location acc 0.9, link 1.0; fixtures written alongside rules so not independent)
+- [x] J2 slackJobs adapter + jobs columns (link, channel, permalink, snippet) + listJobs filters (source/channel/company/sponsor); DMs skipped, bots kept, SLACK_WORKSPACE_URL builds permalinks
+- [x] J3 discord adapter (DiscordChatExporter JSON in data/discord/; DM exports, symlinks, >200MB files skipped; embeds read)
 - [x] T11 qwen client (OpenAI-compatible, strips <think>, throws on truncation)
 - [x] T12 projectSummaries + groundedness (lexical proxy); uncited/<0.5 grounded output stored as Unknown; intel:summarize
 - [x] T13 contributions: model only called with GitHub commit share or project-text mention; bio/skills alone => Unknown quoting the bio
@@ -45,3 +44,4 @@ LOCK: 2026-11-18T02:06:02Z
 - Next up: T17 HTTP routes (/api/intel/*, add intelRag instance + ask), T18 practice + teammateFinder, T19/T20 frontend. See backend/src/http/routes for existing route style.
 
 - Session 4: SCOPE CHANGE applied (ATS scraping dropped; jobs only from Slack/Discord exports). Removed adapters/jobs.js + tests + fixtures; sponsors.jobs_board no longer written. Tests 101 pass.
+- Session 4 done: J1-J3 + review round (fixed: Discord DM skip, seeker/question rules, link spoof via Slack labels, sponsor lookup by name, bot posts, eval vacuous-1). Tests 114 pass. Not done from review: SQL-side listJobs filters, regex readability. Frontend MUST escape job title/company/snippet/channel (frontend/src/utils/dom.js uses innerHTML) and use rel=noopener noreferrer. `jobs.*` metrics are in intel:eval. Next: T17 HTTP routes (include /api/intel/jobs with source/channel/company filters), T18, T19, T20, then L1/L2, F.

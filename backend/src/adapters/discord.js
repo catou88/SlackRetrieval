@@ -5,15 +5,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { DATA_DIR } from "../data/jsonStore.js";
 import { makeRecord } from "../lib/records.js";
-import { detectJobPost, stripChatMarkup } from "../services/jobPostDetector.js";
+import { detectJobPost, stripChatMarkup, safeHttpsLink, SNIPPET_CHARS } from "../services/jobPostDetector.js";
 
 export const name = "discord";
 
-const SNIPPET_CHARS = 300;
+const MAX_EXPORT_BYTES = 200 * 1024 * 1024; // a larger export would exhaust memory in JSON.parse
 const POSTING_MESSAGE_TYPES = new Set(["Default", "Reply"]);
 
 /**
- * @param {{ dir?: string }} options  folder of exports (default data/discord)
+ * @param {{ discordDir?: string }} options  folder of exports (default data/discord)
  * @param {{ listFiles?: (dir: string) => string[], readFile?: (file: string) => string, warn?: (msg: string) => void, detect?: Function }} [deps]
  * @returns {Promise<object[]>} job records
  */
@@ -39,13 +39,21 @@ export function discordPermalink(guildId, channelId, messageId) {
 // ---------------------------------------------------------------- private helpers
 function defaultListFiles(dir) {
   if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir).filter((f) => f.toLowerCase().endsWith(".json")).sort().map((f) => path.join(dir, f));
+  return fs.readdirSync(dir).filter((f) => f.toLowerCase().endsWith(".json")).sort().map((f) => path.join(dir, f))
+    .filter((file) => isPlainSmallFile(file));
+}
+
+/** Symlinks are skipped (they could point outside data/discord) and oversize files are not loaded. */
+function isPlainSmallFile(file) {
+  const stat = fs.lstatSync(file);
+  return stat.isFile() && stat.size <= MAX_EXPORT_BYTES;
 }
 
 function parseExport(file, readFile, warn) {
   try {
     const data = JSON.parse(readFile(file));
     if (!data?.channel?.id || !Array.isArray(data.messages)) throw new Error("not a DiscordChatExporter JSON export");
+    if (isDirectMessageExport(data)) throw new Error("direct-message exports are private and never read");
     return data;
   } catch (err) {
     warn(`discord: skipped ${path.basename(file)}: ${err.message}`);
@@ -53,9 +61,14 @@ function parseExport(file, readFile, warn) {
   }
 }
 
+/** DMs export with a Direct* channel type and guild id "0"; they are private, not shared postings. */
+function isDirectMessageExport({ guild, channel }) {
+  return String(channel.type ?? "").startsWith("Direct") || !guild?.id || String(guild.id) === "0";
+}
+
 function extractJobs({ guild, channel, messages }, detect) {
   const records = [];
-  const label = `${guild?.name ? `${guild.name} ` : ""}#${channel.name ?? channel.id}`;
+  const label = channelLabel(guild, channel);
   for (const message of messages) {
     if (!POSTING_MESSAGE_TYPES.has(message.type ?? "Default")) continue;
     const text = messageText(message);
@@ -66,16 +79,21 @@ function extractJobs({ guild, channel, messages }, detect) {
 }
 
 // Embeds carry the title/URL of link previews, which is often the whole posting.
+function channelLabel(guild, channel) {
+  const prefix = guild?.name ? `${guild.name} ` : "";
+  return `${prefix}#${channel.name ?? channel.id}`;
+}
+
 function messageText(message) {
   const embeds = (message.embeds ?? []).flatMap((e) => [e.title, e.description, e.url]);
   return [message.content, ...embeds].filter(Boolean).join("\n");
 }
 
 function toJobRecord({ guild, channel, label, message, text, found }) {
-  const guildId = guild?.id ?? "@me";
+  const guildId = guild.id;
   return makeRecord("job", name, `discord:message:${channel.id}:${message.id}`, {
     title: found.title ?? stripChatMarkup(text).slice(0, 80),
-    company: found.company, location: found.location, link: found.link?.startsWith("https://") ? found.link : null,
+    company: found.company, location: found.location, link: safeHttpsLink(found.link),
     postedAt: message.timestamp ?? null, channel: label,
     permalink: discordPermalink(guildId, channel.id, message.id),
     snippet: stripChatMarkup(text).slice(0, SNIPPET_CHARS),
