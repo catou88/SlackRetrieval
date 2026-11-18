@@ -267,8 +267,9 @@ function withProjectRelations(db, row) {
     summary_sources: parseJson(row.summary_sources, []),
     prizes: db.prepare(`SELECT pp.prize, pp.is_winner, s.name AS sponsor FROM project_prizes pp
                         LEFT JOIN sponsors s ON s.id = pp.sponsor_id WHERE pp.project_id = ?`).all(row.id),
-    members: db.prepare(`SELECT pe.id, pe.name, pe.devpost_url, pe.github_url, pe.linkedin_url FROM project_members m
-                         JOIN people pe ON pe.id = m.person_id WHERE m.project_id = ?`).all(row.id),
+    members: db.prepare(`SELECT pe.id, pe.name, pe.source_url, pe.bio, pe.skills, pe.devpost_url, pe.github_url, pe.linkedin_url FROM project_members m
+                         JOIN people pe ON pe.id = m.person_id WHERE m.project_id = ?`).all(row.id)
+      .map((m) => ({ ...m, skills: parseJson(m.skills, []) })),
   };
 }
 

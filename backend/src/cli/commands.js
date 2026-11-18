@@ -17,6 +17,7 @@ import { createHttpFetcher } from "../clients/httpFetcher.js";
 import { ingestAll } from "../services/intelIngest.js";
 import { createQwenClient } from "../clients/qwen.js";
 import { summarizeAll } from "../services/projectSummaries.js";
+import { summarizeAllContributions } from "../services/contributions.js";
 import { runExtractionEval } from "../eval/extractionEval.js";
 import { writeEvalReport, metricDeltas } from "../eval/report.js";
 import { execFileSync } from "node:child_process";
@@ -222,6 +223,8 @@ async function intelSummarizeCommand({ flags }) {
     const result = await summarizeAll(db, qwen, { force: !!flags.force });
     console.log(`summarized ${result.done}, skipped ${result.skipped}, failed ${result.failed.length}`);
     for (const f of result.failed) console.log(`  - project ${f.id}: ${f.error}`);
+    const contributions = await summarizeAllContributions(db, qwen);
+    console.log(`contributions for ${contributions.people} people across ${contributions.projects} projects, failed ${contributions.failed.length}`);
   } finally {
     db.close();
   }
