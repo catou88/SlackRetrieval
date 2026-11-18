@@ -6,7 +6,7 @@ const SKELETON_COUNT = 6;
 // What each server error code means to the user, and what to do about it.
 const ERROR_COPY = {
   claude_disabled: { title: "AI is off", body: "This needs a Claude API key. Add it to .env and restart Lanyard:", command: "ANTHROPIC_API_KEY=" },
-  model_unavailable: { title: "Claude isn't reachable right now", body: "The API didn't answer. Check your connection or key, then retry." },
+  model_unavailable: { title: "The AI model isn't reachable right now", body: "The model didn't answer. For Claude check your key; for Qwen check that Ollama is running, then retry." },
   model_timeout: { title: "Claude took too long", body: "The request timed out. Retrying usually works." },
   not_found: { title: "Not in the archive", body: "It may have been removed or never synced." },
   invalid_request: { title: "That request didn't work", body: "" },

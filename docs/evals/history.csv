@@ -76,3 +76,27 @@ date,commit,suite,metric,value
 2026-11-18,2348e16,rag(hash-embedder),heldout.answer_correctness,skipped (no Qwen endpoint)
 2026-11-18,2348e16,rag(hash-embedder),heldout.citation_accuracy,skipped (no Qwen endpoint)
 2026-11-18,2348e16,rag(hash-embedder),heldout.unknown_rate,skipped (no Qwen endpoint)
+2026-11-18,def676f,extraction,winner.precision,1
+2026-11-18,def676f,extraction,winner.recall,1
+2026-11-18,def676f,extraction,members.f1,1
+2026-11-18,def676f,extraction,sponsor_link.accuracy,1
+2026-11-18,def676f,extraction,sf2026_filter.accuracy,1
+2026-11-18,def676f,jobs,job_detect.precision,1
+2026-11-18,def676f,jobs,job_detect.recall,1
+2026-11-18,def676f,jobs,job_company.accuracy,0.9
+2026-11-18,def676f,jobs,job_location.accuracy,0.9
+2026-11-18,def676f,jobs,job_link.accuracy,1
+2026-11-18,def676f,rag(hash-embedder),dev.recall@5,1
+2026-11-18,def676f,rag(hash-embedder),dev.mrr,0.938
+2026-11-18,def676f,rag(hash-embedder),dev.unknown_gate_rate,1
+2026-11-18,def676f,rag(hash-embedder),dev.questions,27
+2026-11-18,def676f,rag(hash-embedder),dev.answer_correctness,skipped (no Qwen endpoint)
+2026-11-18,def676f,rag(hash-embedder),dev.citation_accuracy,skipped (no Qwen endpoint)
+2026-11-18,def676f,rag(hash-embedder),dev.unknown_rate,skipped (no Qwen endpoint)
+2026-11-18,def676f,rag(hash-embedder),heldout.recall@5,1
+2026-11-18,def676f,rag(hash-embedder),heldout.mrr,0.917
+2026-11-18,def676f,rag(hash-embedder),heldout.unknown_gate_rate,0.667
+2026-11-18,def676f,rag(hash-embedder),heldout.questions,15
+2026-11-18,def676f,rag(hash-embedder),heldout.answer_correctness,skipped (no Qwen endpoint)
+2026-11-18,def676f,rag(hash-embedder),heldout.citation_accuracy,skipped (no Qwen endpoint)
+2026-11-18,def676f,rag(hash-embedder),heldout.unknown_rate,skipped (no Qwen endpoint)

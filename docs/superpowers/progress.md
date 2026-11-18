@@ -24,7 +24,7 @@
 - [x] T17 HTTP routes (/api/intel/{hackathons,projects,project?id,people,person?id,sponsors,jobs} + POST ask; 116 tests)
 - [x] T18 practice (pickTrack/revealTrack) + teammateFinder + routes /api/intel/{teammates,practice,practice/reveal}; 120 tests
 - [x] T19 frontend Winners + Project detail (#/winners, #/winners/:id; intelApi.js, safeLink.js, intel.css; browser-smoke-tested with seeded DB, XSS+javascript: links verified inert). Also FIXED collision: intel people table -> hackathon_people
-- [ ] T20 frontend remaining pages + design/a11y review
+- [x] T20 frontend Jobs, Find teammates (#/builders), Practice, Ask winners (#/ask-winners) + review round (fixed: race guards, timer deadline/role, focus, whole-word skill match, empty-state copy). Browser smoke-tested desktop+390px, no overflow/XSS. Known gaps: builders/practice/ask-winners are rail-only (not in phone tab bar); stackOf in teammateFinder is O(N) queries per search; no contrast audit tooling run
 - [ ] L1 live Devpost scrape
 - [ ] L2 live GitHub enrichment
 - [ ] F final report + Claude Doc
@@ -46,4 +46,5 @@
 - Session 4: SCOPE CHANGE applied (ATS scraping dropped; jobs only from Slack/Discord exports). Removed adapters/jobs.js + tests + fixtures; sponsors.jobs_board no longer written. Tests 101 pass.
 - Session 4 done: J1-J3 + review round (fixed: Discord DM skip, seeker/question rules, link spoof via Slack labels, sponsor lookup by name, bot posts, eval vacuous-1). Tests 114 pass. Not done from review: SQL-side listJobs filters, regex readability. Frontend MUST escape job title/company/snippet/channel (frontend/src/utils/dom.js uses innerHTML) and use rel=noopener noreferrer. `jobs.*` metrics are in intel:eval. Next: T17 HTTP routes (include /api/intel/jobs with source/channel/company filters), T18, T19, T20, then L1/L2, F.
 
-LOCK: 2026-11-18T03:06:07Z
+
+- Session 5: T17-T20 done (122 tests). Evals unchanged (no deltas). FOUND+FIXED intel/Slack `people` table collision (now hackathon_people). Remaining: L1 live Devpost (devpost.com blocked by egress proxy in session 1; retry first, record result), L2 live GitHub, F final report + Claude Doc + STATUS: ALL DONE. If L1/L2 stay blocked, mark them blocked (not faked) and proceed to F.

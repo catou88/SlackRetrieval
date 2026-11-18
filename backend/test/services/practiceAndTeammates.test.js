@@ -49,3 +49,9 @@ test("findTeammates ranks by skills/stack and explains why; no match => empty", 
   assert.deepEqual(findTeammates(db, "cobol"), []);
   assert.deepEqual(findTeammates(db, ""), []);
 });
+
+test("short terms match whole words only", () => {
+  const db = seed();
+  assert.deepEqual(findTeammates(db, "go"), []); // "go" must not match langgraph/python substrings
+  assert.equal(findTeammates(db, "python")[0].name, "Ada");
+});

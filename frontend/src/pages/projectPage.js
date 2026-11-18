@@ -31,7 +31,7 @@ function renderProject(project) {
   return html`
     <a class="back" href="#/winners">← All winners</a>
     <header class="page-head"><h1 class="title">${project.title}</h1>
-      <p class="lede">${project.tagline || ""}</p>
+      ${project.tagline ? html`<p class="lede">${project.tagline}</p>` : ""}
       <p class="meta-line">${project.hackathon_name || "Unknown hackathon"}</p>
       ${linkRow({ Devpost: project.devpost_url, GitHub: project.github_url, "Hugging Face": project.hf_url })}</header>
     ${winnerPrizes.length ? html`<section class="intel-section" aria-labelledby="prizes"><h2 class="sec-head" id="prizes">Prizes</h2>

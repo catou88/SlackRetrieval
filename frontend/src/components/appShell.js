@@ -11,7 +11,11 @@ const NAV_ITEMS = [
   { id: "opportunities", href: "#/opportunities", label: "Opportunities", short: "Opps", icon: "briefcase", count: () => store.opportunityCount },
   { id: "teammates", href: "#/teammates", label: "Teammates", short: "Team", icon: "handshake", count: () => store.teammates.length },
   { id: "winners", href: "#/winners", label: "Winners", icon: "sparkles" },
+  { id: "jobs", href: "#/jobs", label: "Jobs", icon: "briefcase" },
+  { id: "builders", href: "#/builders", label: "Find teammates", short: "Builders", icon: "users", isRailOnly: true },
+  { id: "practice", href: "#/practice", label: "Practice", icon: "clock", isRailOnly: true },
   { id: "archive", href: "#/archive", label: "Archive", icon: "archive" },
+  { id: "askWinners", href: "#/ask-winners", label: "Ask winners", icon: "sparkles", isRailOnly: true },
   // Ask lives in the topbar on phones, so the tab bar skips it.
   { id: "ask", href: "#/ask", label: "Ask", icon: "sparkles", isRailOnly: true },
 ];

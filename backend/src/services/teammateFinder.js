@@ -7,6 +7,8 @@ const WINNER_BONUS = 1;
 const SKILL_WEIGHT = 3;
 const STACK_WEIGHT = 2;
 const TEXT_WEIGHT = 1;
+const MIN_TERM_CHARS = 3;
+const SHORT_TERMS = new Set(["go", "ai", "ml", "c#", "c++", "js", "ts"]); // real skills shorter than 3 chars
 
 /**
  * @param {import("better-sqlite3").Database} db
@@ -29,7 +31,7 @@ export function findTeammates(db, query, { limit = MAX_RESULTS } = {}) {
 
 // ---------------------------------------------------------------- private helpers
 function tokenize(text) {
-  return [...new Set(String(text ?? "").toLowerCase().split(/[^a-z0-9+#.]+/).filter((t) => t.length > 1))];
+  return [...new Set(String(text ?? "").toLowerCase().split(/[^a-z0-9+#.]+/).filter((t) => t.length >= MIN_TERM_CHARS || SHORT_TERMS.has(t)))];
 }
 
 // Technologies used on each person's projects (built_with is per project, not per person).
@@ -43,6 +45,12 @@ function stackOf(db) {
   return byPerson;
 }
 
+// Whole-word match so "go" does not hit "mongo" and "ai" does not hit "email".
+function hasWord(text, term) {
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-z0-9])${escaped}($|[^a-z0-9])`).test(text);
+}
+
 function scorePerson(person, terms, stack) {
   const skills = person.skills.map((s) => s.toLowerCase());
   const stackLower = stack.map((s) => String(s).toLowerCase());
@@ -51,9 +59,9 @@ function scorePerson(person, terms, stack) {
   let score = 0;
   let matched = 0;
   for (const term of terms) {
-    const inSkills = skills.some((s) => s.includes(term));
-    const inStack = stackLower.some((s) => s.includes(term));
-    const inText = text.includes(term);
+    const inSkills = skills.some((s) => hasWord(s, term));
+    const inStack = stackLower.some((s) => hasWord(s, term));
+    const inText = hasWord(text, term);
     if (!inSkills && !inStack && !inText) continue;
     matched++;
     score += (inSkills ? SKILL_WEIGHT : 0) + (inStack ? STACK_WEIGHT : 0) + (inText ? TEXT_WEIGHT : 0);

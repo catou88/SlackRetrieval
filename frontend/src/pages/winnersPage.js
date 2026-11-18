@@ -32,10 +32,12 @@ export async function renderPage(root, { params }) {
       const projects = await fetchProjects(view, { signal: controller.signal });
       status.textContent = pluralize(projects.length, "project");
       setHTML(list, projects.length ? html`<ul class="intel-cards">${projects.map(projectCard)}</ul>` : emptyState({
-        icon: "search", title: "No projects match", body: "Try removing a filter. Nothing is shown until Devpost data has been ingested (npm run intel:ingest).",
+        icon: "search", title: "No projects match", body: "Try removing a filter. If you have not ingested Devpost data yet, run npm run intel:ingest.",
       }));
     } catch (error) {
-      if (!isAbortError(error)) setHTML(list, errorCard(error));
+      if (isAbortError(error)) return;
+      status.textContent = "";
+      setHTML(list, errorCard(error));
     }
   }
 
@@ -53,7 +55,7 @@ export async function renderPage(root, { params }) {
   });
   findElement("#stack", root).addEventListener("input", (event) => { view.stack = event.target.value.trim(); reloadSoon(); });
   await load();
-  return () => reloadSoon.cancel();
+  return () => { reloadSoon.cancel(); controller?.abort(); };
 }
 
 // ---------- private helpers ----------

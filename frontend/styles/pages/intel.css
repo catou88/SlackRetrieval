@@ -15,3 +15,5 @@
 .intel-section { margin-top: var(--s-5); }
 .intel-section .sec-head { margin: 0 0 var(--s-2); }
 .toolbar { margin-bottom: var(--s-3); }
+.intel-why { margin: var(--s-2) 0 0; padding-left: var(--s-5); color: var(--muted); font-size: 13px; }
+.intel-clock { font: 500 32px var(--font-mono); margin: var(--s-2) 0; }

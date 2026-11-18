@@ -19,6 +19,10 @@ const PAGE_LOADERS = {
   ask: () => import("./pages/askPage.js"),
   winners: () => import("./pages/winnersPage.js"),
   project: () => import("./pages/projectPage.js"),
+  jobs: () => import("./pages/jobsPage.js"),
+  builders: () => import("./pages/buildersPage.js"),
+  practice: () => import("./pages/practicePage.js"),
+  askWinners: () => import("./pages/askWinnersPage.js"),
 };
 const SCROLL_KEY_PREFIX = "lanyard.scroll:";
 
@@ -35,6 +39,7 @@ export function resolveRoute() {
   const [section, id] = path;
   if (section === "people" && id) return { name: "person", nav: "people", id, params };
   if (section === "winners" && id) return { name: "project", nav: "winners", id, params };
+  if (section === "ask-winners") return { name: "askWinners", nav: "askWinners", params };
   if (section === "archive") return { name: "archive", nav: "archive", id, params };
   if (PAGE_LOADERS[section]) return { name: section, nav: section, params };
   return { name: "home", nav: "home", params };
